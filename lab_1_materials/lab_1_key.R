@@ -206,14 +206,18 @@ ggplot(data = hp_data, aes(x = book, y = aggressions)) +
 
 # Then, if you want to open it again, just double click on the .Rproj file, notice that all your files are right in the 'Files' tab (including your script), click on the script to open it, then run the entire thing with Command + Shift + Enter to recreate all of your great work!
 
-#-----------------------
-# END LAB 1
-#-----------------------
-
-# BONUS SHORTCUTS & GOODIES:
+# ---------------------
+# Shortcuts & goodies
+# ---------------------
 
 # ALT/option key + (minus) to add an arrow <-
 # Command + Shift + C for multiple lines commenting out/in
 # RStudio Cheatsheets
+
+#-----------------------
+# END LAB 1
+#-----------------------
+
+
 
 
