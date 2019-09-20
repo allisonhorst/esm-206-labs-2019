@@ -48,6 +48,9 @@ library(janitor)
 
 # If the file is in your working directory (i.e. in the project folder), then you don't need to add a file_path/ to find it because it's already we're R is pointed to.
 
+# Data: Harry Potter aggression by character, book & number of mentions!
+# Collected and made available by Andrew Heiss (https://www.andrewheiss.com/, https://github.com/andrewheiss/Harry-Potter-aggression)
+
 hp_data <- read_csv("lab_1_materials/hp_aggression.csv")
 
 # How do I know it worked? No errors, + look in 'Environment'
