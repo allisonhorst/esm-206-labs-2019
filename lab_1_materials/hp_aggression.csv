@@ -1,0 +1,264 @@
+character,abb,book,aggressions,paragraphs,mentions
+Harry,harr,The Sorcerer's Stone,3,3015,1074
+Hermione Granger,herm,The Sorcerer's Stone,3,3015,249
+Voldemort,vold,The Sorcerer's Stone,0,3015,32
+Ron Wealsey,ronw,The Sorcerer's Stone,2,3015,513
+Severus Snape,snap,The Sorcerer's Stone,0,3015,148
+Albus Dumbledore,albu,The Sorcerer's Stone,0,3015,143
+Draco Malfoy,drac,The Sorcerer's Stone,1,3015,11
+Neville Longbottom,nevi,The Sorcerer's Stone,0,3015,101
+Minerva McGonagall,mcgo,The Sorcerer's Stone,0,3015,94
+Vincent Crabbe ,crab,The Sorcerer's Stone,0,3015,21
+Fred Weasley,fred,The Sorcerer's Stone,0,3015,34
+George Weasley,geor,The Sorcerer's Stone,0,3015,29
+Quirinus Quirrell,quir,The Sorcerer's Stone,5,3015,85
+Filius Flitwick,flit,The Sorcerer's Stone,0,3015,17
+Rubeus Hagrid,hagr,The Sorcerer's Stone,1,3015,329
+Cho Chang,choc,The Sorcerer's Stone,0,3015,110
+Peeves,peev,The Sorcerer's Stone,0,3015,31
+Percy Weasley,perc,The Sorcerer's Stone,0,3015,37
+Seamus Finnagin,seam,The Sorcerer's Stone,0,3015,17
+Fluffy,fluf,The Sorcerer's Stone,1,3015,26
+Greggory Goyle,goyl,The Sorcerer's Stone,0,3015,22
+Lee Jordan,leej,The Sorcerer's Stone,0,3015,11
+Madam Hooch,hooc,The Sorcerer's Stone,0,3015,12
+Harry,harr,The Chamber of Secrets,4,3373,1333
+Hermione Granger,herm,The Chamber of Secrets,0,3373,297
+Voldemort,vold,The Chamber of Secrets,1,3373,31
+Ron Wealsey,ronw,The Chamber of Secrets,1,3373,729
+Severus Snape,snap,The Chamber of Secrets,2,3373,77
+Albus Dumbledore,albu,The Chamber of Secrets,0,3373,141
+Draco Malfoy,drac,The Chamber of Secrets,3,3373,32
+Neville Longbottom,nevi,The Chamber of Secrets,0,3373,28
+Basilisk,basi,The Chamber of Secrets,12,3373,24
+Minerva McGonagall,mcgo,The Chamber of Secrets,0,3373,80
+Ginny Wealsey,ginn,The Chamber of Secrets,0,3373,101
+Vincent Crabbe ,crab,The Chamber of Secrets,0,3373,30
+Dobby,dobb,The Chamber of Secrets,3,3373,106
+Fred Weasley,fred,The Chamber of Secrets,0,3373,98
+George Weasley,geor,The Chamber of Secrets,0,3373,87
+Arthur Weasley,arth,The Chamber of Secrets,1,3373,18
+Rubeus Hagrid,hagr,The Chamber of Secrets,1,3373,136
+Gilderoy Lockhart,lock,The Chamber of Secrets,3,3373,212
+Ernie MacMillion,erni,The Chamber of Secrets,0,3373,26
+Fawkes,,The Chamber of Secrets,3,3373,27
+Cho Chang,choc,The Chamber of Secrets,0,3373,146
+Dean Thomas,dean,The Chamber of Secrets,0,3373,15
+Peeves,peev,The Chamber of Secrets,0,3373,22
+Percy Weasley,perc,The Chamber of Secrets,0,3373,68
+Seamus Finnagin,seam,The Chamber of Secrets,0,3373,17
+Colin Creevey,coli,The Chamber of Secrets,0,3373,42
+Greggory Goyle,goyl,The Chamber of Secrets,0,3373,33
+Justin Finch-Fletchley,just,The Chamber of Secrets,0,3373,37
+Madam Pince,pinc,The Chamber of Secrets,0,3373,15
+Harry,harr,The Prisoner of Azkaban,26,4092,1662
+Hermione Granger,herm,The Prisoner of Azkaban,4,4092,601
+Voldemort,vold,The Prisoner of Azkaban,0,4092,40
+Ron Wealsey,ronw,The Prisoner of Azkaban,2,4092,866
+Severus Snape,snap,The Prisoner of Azkaban,1,4092,234
+Albus Dumbledore,albu,The Prisoner of Azkaban,1,4092,143
+Boggart,bogg,The Prisoner of Azkaban,13,4092,35
+Neville Longbottom,nevi,The Prisoner of Azkaban,2,4092,94
+Dementors,deme,The Prisoner of Azkaban,6,4092,129
+Remus Lupin,remu,The Prisoner of Azkaban,7,4092,385
+Minerva McGonagall,mcgo,The Prisoner of Azkaban,0,4092,98
+Sirius Black,siri,The Prisoner of Azkaban,6,4092,122
+Peter Pettigrew,worm,The Prisoner of Azkaban,3,4092,96
+Ginny Wealsey,ginn,The Prisoner of Azkaban,0,4092,18
+Thorfinn Rowle,rowl,The Prisoner of Azkaban,0,4092,11
+Whomping Willow,will,The Prisoner of Azkaban,1,4092,24
+Vincent Crabbe ,crab,The Prisoner of Azkaban,0,4092,32
+Fred Weasley,fred,The Prisoner of Azkaban,0,4092,72
+George Weasley,geor,The Prisoner of Azkaban,0,4092,60
+James Potter,jame,The Prisoner of Azkaban,0,4092,31
+Filius Flitwick,flit,The Prisoner of Azkaban,0,4092,22
+Rubeus Hagrid,hagr,The Prisoner of Azkaban,0,4092,225
+Parvati Patil,parv,The Prisoner of Azkaban,1,4092,18
+Buckbeak,buck,The Prisoner of Azkaban,1,4092,82
+Cho Chang,choc,The Prisoner of Azkaban,0,4092,141
+Dean Thomas,dean,The Prisoner of Azkaban,1,4092,17
+Peeves,peev,The Prisoner of Azkaban,0,4092,18
+Percy Weasley,perc,The Prisoner of Azkaban,0,4092,63
+Seamus Finnagin,seam,The Prisoner of Azkaban,1,4092,18
+Sybill Trelawney,trel,The Prisoner of Azkaban,0,4092,80
+Greggory Goyle,goyl,The Prisoner of Azkaban,0,4092,35
+Madam Hooch,hooc,The Prisoner of Azkaban,0,4092,21
+Harry,harr,The Goblet of Fire,20,6803,2593
+Hermione Granger,herm,The Goblet of Fire,2,6803,821
+Voldemort,vold,The Goblet of Fire,11,6803,197
+Ron Wealsey,ronw,The Goblet of Fire,3,6803,1193
+Severus Snape,snap,The Goblet of Fire,0,6803,205
+Albus Dumbledore,albu,The Goblet of Fire,1,6803,507
+Draco Malfoy,drac,The Goblet of Fire,2,6803,22
+Neville Longbottom,nevi,The Goblet of Fire,0,6803,68
+Dementors,deme,The Goblet of Fire,3,6803,37
+Barty Crouch Jr.,croj,The Goblet of Fire,12,6803,24
+Minerva McGonagall,mcgo,The Goblet of Fire,0,6803,92
+Sirius Black,siri,The Goblet of Fire,0,6803,181
+Ginny Wealsey,ginn,The Goblet of Fire,0,6803,43
+Thorfinn Rowle,rowl,The Goblet of Fire,0,6803,32
+Vincent Crabbe ,crab,The Goblet of Fire,0,6803,35
+Dobby,dobb,The Goblet of Fire,0,6803,114
+Fred Weasley,fred,The Goblet of Fire,2,6803,181
+George Weasley,geor,The Goblet of Fire,1,6803,154
+Arthur Weasley,arth,The Goblet of Fire,1,6803,32
+Barty Crouch Sr.,cros,The Goblet of Fire,4,6803,24
+Filius Flitwick,flit,The Goblet of Fire,0,6803,13
+Amos Diggory,amos,The Goblet of Fire,3,6803,28
+Rubeus Hagrid,hagr,The Goblet of Fire,0,6803,313
+Cedric Diggory,cedr,The Goblet of Fire,3,6803,304
+Giants,gian,The Goblet of Fire,0,6803,14
+Parvati Patil,parv,The Goblet of Fire,0,6803,40
+Cho Chang,choc,The Goblet of Fire,0,6803,236
+Dean Thomas,dean,The Goblet of Fire,0,6803,24
+Viktor Krum,krum,The Goblet of Fire,2,6803,189
+Madame Maxime,maxi,The Goblet of Fire,0,6803,91
+Alastor Moody,mood,The Goblet of Fire,0,6803,314
+Peeves,peev,The Goblet of Fire,0,6803,28
+Percy Weasley,perc,The Goblet of Fire,0,6803,107
+Seamus Finnagin,seam,The Goblet of Fire,0,6803,26
+Sybill Trelawney,trel,The Goblet of Fire,0,6803,32
+Colin Creevey,coli,The Goblet of Fire,0,6803,25
+Fleur Delacour,fleu,The Goblet of Fire,1,6803,89
+Greggory Goyle,goyl,The Goblet of Fire,0,6803,48
+Lee Jordan,leej,The Goblet of Fire,0,6803,12
+Harry,harr,The Order of the Phoenix,26,9275,3509
+Hermione Granger,herm,The Order of the Phoenix,10,9275,1249
+Voldemort,vold,The Order of the Phoenix,3,9275,206
+Ron Wealsey,ronw,The Order of the Phoenix,8,9275,1526
+Bellatrix Lestrange,bell,The Order of the Phoenix,15,9275,53
+Severus Snape,snap,The Order of the Phoenix,8,9275,326
+Albus Dumbledore,albu,The Order of the Phoenix,11,9275,574
+Boggart,bogg,The Order of the Phoenix,7,9275,11
+Draco Malfoy,drac,The Order of the Phoenix,1,9275,26
+Neville Longbottom,nevi,The Order of the Phoenix,16,9275,237
+Dolores Umbridge,umbr,The Order of the Phoenix,17,9275,537
+Dementors,deme,The Order of the Phoenix,0,9275,88
+Molly Weasley,moll,The Order of the Phoenix,5,9275,35
+Remus Lupin,remu,The Order of the Phoenix,1,9275,160
+Minerva McGonagall,mcgo,The Order of the Phoenix,0,9275,174
+Sirius Black,siri,The Order of the Phoenix,2,9275,552
+Antonin Dolohov,dolo,The Order of the Phoenix,5,9275,12
+Ginny Wealsey,ginn,The Order of the Phoenix,3,9275,225
+Thorfinn Rowle,rowl,The Order of the Phoenix,0,9275,26
+Vincent Crabbe ,crab,The Order of the Phoenix,0,9275,38
+Dobby,dobb,The Order of the Phoenix,0,9275,46
+Fred Weasley,fred,The Order of the Phoenix,2,9275,315
+George Weasley,geor,The Order of the Phoenix,3,9275,278
+Luna Lovegood,luna,The Order of the Phoenix,3,9275,137
+James Potter,jame,The Order of the Phoenix,5,9275,57
+Arthur Weasley,arth,The Order of the Phoenix,0,9275,44
+Filius Flitwick,flit,The Order of the Phoenix,0,9275,25
+Kingsley Shacklebolt,king,The Order of the Phoenix,1,9275,45
+Nymphadora Tonks,tonk,The Order of the Phoenix,2,9275,102
+Rubeus Hagrid,hagr,The Order of the Phoenix,0,9275,416
+Gilderoy Lockhart,lock,The Order of the Phoenix,0,9275,18
+Cedric Diggory,cedr,The Order of the Phoenix,0,9275,35
+Ernie MacMillion,erni,The Order of the Phoenix,1,9275,31
+Fawkes,,The Order of the Phoenix,0,9275,14
+Giants,gian,The Order of the Phoenix,0,9275,27
+Kreacher,krea,The Order of the Phoenix,0,9275,91
+Parvati Patil,parv,The Order of the Phoenix,1,9275,45
+Centaurs,cent,The Order of the Phoenix,0,9275,36
+Cho Chang,choc,The Order of the Phoenix,2,9275,379
+Dean Thomas,dean,The Order of the Phoenix,0,9275,50
+Alastor Moody,mood,The Order of the Phoenix,1,9275,92
+Peeves,peev,The Order of the Phoenix,0,9275,26
+Percy Weasley,perc,The Order of the Phoenix,0,9275,55
+Seamus Finnagin,seam,The Order of the Phoenix,0,9275,55
+Sybill Trelawney,trel,The Order of the Phoenix,0,9275,82
+Greggory Goyle,goyl,The Order of the Phoenix,0,9275,49
+Grawp,graw,The Order of the Phoenix,0,9275,42
+Lee Jordan,leej,The Order of the Phoenix,0,9275,13
+Mundungus Fletcher,mund,The Order of the Phoenix,0,9275,57
+Harry,harr,The Half-Blood Prince,33,6654,2289
+Hermione Granger,herm,The Half-Blood Prince,4,6654,635
+Voldemort,vold,The Half-Blood Prince,15,6654,218
+Ron Wealsey,ronw,The Half-Blood Prince,3,6654,974
+Bellatrix Lestrange,bell,The Half-Blood Prince,2,6654,11
+Severus Snape,snap,The Half-Blood Prince,12,6654,265
+Albus Dumbledore,albu,The Half-Blood Prince,9,6654,853
+Draco Malfoy,drac,The Half-Blood Prince,10,6654,54
+Neville Longbottom,nevi,The Half-Blood Prince,1,6654,61
+Dolores Umbridge,umbr,The Half-Blood Prince,0,6654,12
+Dementors,deme,The Half-Blood Prince,0,6654,16
+Molly Weasley,moll,The Half-Blood Prince,0,6654,15
+Remus Lupin,remu,The Half-Blood Prince,0,6654,67
+Minerva McGonagall,mcgo,The Half-Blood Prince,0,6654,80
+Sirius Black,siri,The Half-Blood Prince,1,6654,45
+Ginny Wealsey,ginn,The Half-Blood Prince,2,6654,208
+Vincent Crabbe ,crab,The Half-Blood Prince,0,6654,27
+Dobby,dobb,The Half-Blood Prince,1,6654,23
+Fred Weasley,fred,The Half-Blood Prince,0,6654,75
+George Weasley,geor,The Half-Blood Prince,0,6654,60
+Luna Lovegood,luna,The Half-Blood Prince,0,6654,56
+Arthur Weasley,arth,The Half-Blood Prince,0,6654,19
+Filius Flitwick,flit,The Half-Blood Prince,0,6654,16
+Nymphadora Tonks,tonk,The Half-Blood Prince,0,6654,58
+Rubeus Hagrid,hagr,The Half-Blood Prince,0,6654,197
+Ernie MacMillion,erni,The Half-Blood Prince,1,6654,18
+Fernir Greyback,grey,The Half-Blood Prince,1,6654,23
+Kreacher,krea,The Half-Blood Prince,0,6654,35
+Morfin Guant,morf,The Half-Blood Prince,3,6654,51
+Parvati Patil,parv,The Half-Blood Prince,0,6654,16
+Horace Slughorn,slug,The Half-Blood Prince,2,6654,364
+Cho Chang,choc,The Half-Blood Prince,0,6654,228
+Dean Thomas,dean,The Half-Blood Prince,0,6654,47
+Peeves,peev,The Half-Blood Prince,1,6654,11
+Percy Weasley,perc,The Half-Blood Prince,0,6654,18
+Seamus Finnagin,seam,The Half-Blood Prince,0,6654,17
+Sybill Trelawney,trel,The Half-Blood Prince,0,6654,38
+Fleur Delacour,fleu,The Half-Blood Prince,0,6654,45
+Greggory Goyle,goyl,The Half-Blood Prince,0,6654,34
+Marvolo Guant,marv,The Half-Blood Prince,1,6654,51
+Mundungus Fletcher,mund,The Half-Blood Prince,0,6654,20
+Bob Ogden,ogde,The Half-Blood Prince,1,6654,58
+Harry,harr,The Deathly Hallows,48,6861,2608
+Hermione Granger,herm,The Deathly Hallows,44,6861,1128
+Voldemort,vold,The Deathly Hallows,31,6861,406
+Ron Wealsey,ronw,The Deathly Hallows,16,6861,1303
+Bellatrix Lestrange,bell,The Deathly Hallows,12,6861,90
+Severus Snape,snap,The Deathly Hallows,5,6861,285
+Albus Dumbledore,albu,The Deathly Hallows,2,6861,483
+Draco Malfoy,drac,The Deathly Hallows,4,6861,53
+Neville Longbottom,nevi,The Deathly Hallows,2,6861,81
+Dolores Umbridge,umbr,The Deathly Hallows,0,6861,42
+Dementors,deme,The Deathly Hallows,4,6861,43
+Remus Lupin,remu,The Deathly Hallows,2,6861,168
+Minerva McGonagall,mcgo,The Deathly Hallows,9,6861,65
+Sirius Black,siri,The Deathly Hallows,0,6861,56
+Nagini,nagi,The Deathly Hallows,8,6861,19
+Peter Pettigrew,worm,The Deathly Hallows,2,6861,11
+Antonin Dolohov,dolo,The Deathly Hallows,2,6861,17
+Ginny Wealsey,ginn,The Deathly Hallows,2,6861,112
+Thorfinn Rowle,rowl,The Deathly Hallows,1,6861,23
+Vincent Crabbe ,crab,The Deathly Hallows,6,6861,27
+Dobby,dobb,The Deathly Hallows,2,6861,40
+Fred Weasley,fred,The Deathly Hallows,2,6861,89
+George Weasley,geor,The Deathly Hallows,2,6861,69
+Luna Lovegood,luna,The Deathly Hallows,3,6861,134
+James Potter,jame,The Deathly Hallows,0,6861,52
+Aberforth Dumbledore,aber,The Deathly Hallows,4,6861,67
+Arthur Weasley,arth,The Deathly Hallows,2,6861,21
+Filius Flitwick,flit,The Deathly Hallows,4,6861,21
+Kingsley Shacklebolt,king,The Deathly Hallows,3,6861,46
+Nymphadora Tonks,tonk,The Deathly Hallows,2,6861,78
+Rubeus Hagrid,hagr,The Deathly Hallows,1,6861,147
+Fernir Greyback,grey,The Deathly Hallows,3,6861,63
+Gellert Grindelvald,grin,The Deathly Hallows,3,6861,46
+Kreacher,krea,The Deathly Hallows,3,6861,86
+Morfin Guant,morf,The Deathly Hallows,0,6861,11
+Horace Slughorn,slug,The Deathly Hallows,1,6861,12
+Alecto Carrow,alec,The Deathly Hallows,2,6861,13
+Cho Chang,choc,The Deathly Hallows,0,6861,182
+Dean Thomas,dean,The Deathly Hallows,1,6861,40
+Viktor Krum,krum,The Deathly Hallows,0,6861,34
+Alastor Moody,mood,The Deathly Hallows,1,6861,29
+Narcissa Malfoy,narc,The Deathly Hallows,1,6861,19
+Percy Weasley,perc,The Deathly Hallows,2,6861,29
+Seamus Finnagin,seam,The Deathly Hallows,1,6861,11
+Yaxley,yaxl,The Deathly Hallows,2,6861,52
+Fleur Delacour,fleu,The Deathly Hallows,0,6861,104
+Greggory Goyle,goyl,The Deathly Hallows,1,6861,26
+Marvolo Guant,marv,The Deathly Hallows,0,6861,11
+Mundungus Fletcher,mund,The Deathly Hallows,0,6861,42
