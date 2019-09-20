@@ -210,9 +210,10 @@ ggplot(data = hp_data, aes(x = book, y = aggressions)) +
 # END LAB 1
 #-----------------------
 
-# BONUS SHORTCUTS:
+# BONUS SHORTCUTS & GOODIES:
 
-# ALT + SHIFT + K for the shortcuts menu!
+# ALT/option key + (minus) to add an arrow <-
 # Command + Shift + C for multiple lines commenting out/in
 # RStudio Cheatsheets
+
 
