@@ -53,7 +53,7 @@ library(janitor)
 
 hp_data <- read_csv("lab_1_materials/hp_aggression.csv")
 
-# How do I know it worked? No errors, + look in 'Environment'
+# How do I know it worked? No errors, + look in 'Environment'...then...
 
 #--------------------------
 # 3. Check it out (LOOK AT YOUR DATA)
@@ -65,7 +65,7 @@ hp_data <- read_csv("lab_1_materials/hp_aggression.csv")
 View(hp_data)
 names(hp_data)
 summary(hp_data)
-ls()
+ls() # to show all objects in environment
 
 # This format: tidy data
 
