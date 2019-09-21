@@ -1,0 +1,246 @@
+---
+title: "ESM 206 Lab 2"
+subtitle: "Meet RMarkdown, more wrangling, pivot_longer, ggplot2 customization"
+author: "Allison Horst"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lab 2 objectives:
+
+- Meet RMarkdown
+- More data wrangling
+- Customization in ggplot2
+- pivot_longer to gather data
+
+## Packages required: 
+
+- tidyverse
+- janitor
+- tidyr (install on its own - to make sure new functions exist!)
+
+## Data: Worldbank Environmental Indicators
+
+Accessed 9/18/2019 from: https://data.worldbank.org/topic/environment
+
+### 1. Lab set-up: 
+
+- Create a new project (within your ESM 206 labs folder)
+- Copy and paste the wb_env.csv file into the project folder
+- In RStudio, create a new RMarkdown doc (.Rmd)
+- Add your name & and descriptive title
+
+## 2. RMarkdown formatting basics
+
+# Header large
+### Header medium
+##### Header small
+
+- a bulletpointed
+- list of 
+- things
+
+1. Or a 
+2. numbered list
+3. of things
+    a. Maybe with some nested sections
+    b. like this
+4. Then something else...
+
+I can make something **bold** with double asterisks, or *italicized* with single asterisks. 
+
+Make something superscripted^UP^ or subscripted~DOWN~
+
+I can add a regular hyperlink by just writing the URL: https://www.ucsb.edu/
+
+Or I can have [linked text](https://www.ucsb.edu/).
+
+I can add an image: 
+![](teddy_utah.jpg)
+
+So those are some formatting basics in RMarkdown. But the real power of using markdown is that you can have your formatted text, code and outputs from your analyses all in the same place! 
+
+Let's start adding some code to our .Rmd.
+
+## 3. Add some code in markdown
+
+Unlike in a script, when we want to include **code** in an .Rmd we place it in a code chunk. Add a new code chunk with Insert > R, or with the shortcut Control + Alt + I. A new code chunk will show up with a gray background. Put your code stuff in there. 
+
+In our first code chunk, let's attach the packages we'll use today:
+
+```{r, warnings = FALSE}
+# Attach tidyverse, janitor, and tidyr packages (note: once I'm working in a code chunk, then I work like I'm in a script again...)
+
+library(tidyverse)
+library(janitor)
+library(tidyr)
+
+```
+
+Now try knitting, and see what happens (press 'Knit', or use shortcut Command + Shift + K). 
+
+See how a whole bunch of stuff (messages, conflicts, etc.) shows up when you knit? You might not want that to show up. In fact, you might not want the code OR any messages/outputs to show up. To hide everything, add 'include = FALSE' in the code chunk header, like this {r, include = FALSE}
+
+More options for what to show or hide? 
+Check the RStudio RMarkdown cheatsheet (Help > Cheatsheets > Rmarkdown)!
+
+## 4. Reading in & cleaning up data
+
+Today we'll use Worldbank data for environmental indicators (wb_env.csv). 
+
+Data source: The World Bank (https://data.worldbank.org/topic/environment), retrieved 9/19/2019. 
+
+First, open the CSV in Excel (outside of R, open the file & it will open in Excel). You will see that there are 4 rows before we get to the column headers we want to import. We'll use `skip = ` to tell readr how many rows to skip when we read in our data. 
+
+```{r}
+
+wb_env <- read_csv("wb_env.csv", skip = 4)
+
+# Check out the data a bit:
+# names(wb_env)
+# summary(wb_env)
+
+# Also read in country_list.csv - we'll see how we need this later on.
+country_list <- read_csv("country_list.csv")
+```
+
+Two things to point out: 1) it's not in tidy data format. The single variable 'year' has been split over a bunch of different columns. We'll change that to gather the data using tidyr::pivot_longer(). And 2) the column names would be really obnoxious to work with. Let's convert them to snake_case using the janitor package.
+
+Gather the data using tidyr::pivot_longer().
+
+**Question:** If tidyr is part of the tidyverse, then why did I need to separately install and attach the tidyverse? **Answer:** because the version of tidyr that still comes with the tidyverse package isn't the most recent version, and the pivot_* functions only exist in the newest version. Good question.
+
+```{r}
+
+wb_tidy <- wb_env %>% 
+  pivot_longer(`1960`:`2018`, # The columns I'm gathering together
+               names_to = "year", # new column name for existing names
+               values_to = "value") # new column name to store values
+
+```
+
+Now this is closer to tidy format, but the column names are still annoying. Clean them up with janitor::clean_names() to make them all snake_case. Also here I'm getting rid of that extra column x64. 
+
+```{r}
+
+wb_df <-  wb_tidy %>% 
+  clean_names() %>% 
+  select(-x64) %>% 
+  mutate(year = as.numeric(year)) # was character bc started as col name
+  
+```
+
+Let's check out a few things about the data. Like, what are the different indicators? What are the different countries listed? 
+
+We can use the unique() function: `unique(wb_df$country_name` or `unique(wb_df$indicator_name)` (run this in the Console, and ask yourself: why might I not want to put this in a code chunk that is then reported in my knitted document?).
+
+## 5. More data wrangling
+
+Let's say we're interested in finding the top 20 CO2 emitting countries (using indicator "CO2 emissions (kt)") from 2000 - 2018. 
+
+To do that, let's: 
+
+1. Make a subset that only contains data for "CO2 emissions (kt)" collected from 2000 - 2018
+2. Group the data by Country Name
+3. Find the sum of the CO2 emissions for each group
+4. Make a nice plot of their total CO2 emissions from 2000 - 2018
+
+```{r}
+
+wb_co2 <- wb_df %>% 
+  select(-country_code, -indicator_code) %>% 
+  filter(between(year, 2000, 2018)) %>%  # Note: can also use year >= 2000, year <= 2019
+  group_by(country_name) %>% 
+  summarize(
+    total = sum(value, na.rm = TRUE)
+  ) %>% 
+  arrange(-total)
+
+```
+
+But here we see a problem: the World Bank data, as downloaded, has a bunch of aggregated regions. We want to exclude those. 
+
+To do that, there is another data frame we've read in called country_list, that only contains the names of the different countries (importantly, in the same format as they exist in our wb_co2 df). We will JOIN our data frames, in a way that only countries in wb_co2 that have a match in the 'country' column of country_list will still remain. 
+
+But R will look for columns with the *same exact name* to try to join dfs by - here, we have our countries in a column called "country_name" in wb_co2, but only called "country" in country_list. First, we'll update the column name to "country_name" in country_list so that there is a match for R to find when it tries to join them. 
+
+```{r}
+
+country_ls_new <- country_list %>% 
+  rename(country_name = country)
+
+wb_join <- wb_co2 %>% 
+  inner_join(country_ls_new)
+
+# Checking out what didn't match: 
+wb_antijoin <- wb_co2 %>% 
+  dplyr::anti_join(country_ls_new)
+
+# And what doesn't exist from the country list in our new wb_join df? What does this mean? These listed countries probably only had NA values in the original dataset. 
+wb_antijoin2 <- country_ls_new %>% 
+  anti_join(wb_join)
+
+```
+
+Now let's just find the top 20 CO2 emitters from 2000 - 2018, convert to trillions of tons (instead of kt) and make a nice graph: 
+
+```{r}
+co2_top20 <- wb_join %>% 
+  head(20) %>% 
+  mutate(quadrillion_tons = total/1e12)
+```
+
+What are some options? 
+```{r}
+
+ggplot(co2_top20, aes(x = country_name, y = quadrillion_tons)) +
+  geom_col() + # GROSS! 
+  coord_flip() # Still so gross! 
+
+# Why? We probably want this in order. And the bars are really bulky. Let's make a lollipop chart with our countries in order from highest to lowest for the top 50 to make this much better.
+
+# Use forcats::fct_reorder() to change the order of levels
+
+ggplot(co2_top20, aes(x = fct_reorder(country_name, quadrillion_tons), y = quadrillion_tons)) +
+  geom_col() + 
+  coord_flip()# Still ew! But at least this is in order? 
+
+```
+
+Now, let's make something actually nice: 
+
+```{r}
+
+ggplot(co2_top20, aes(y = fct_reorder(country_name, quadrillion_tons), x = quadrillion_tons)) +
+  geom_point(aes(color = quadrillion_tons),
+             size = 3,
+             show.legend = FALSE) +
+  geom_segment(aes(x = 0, 
+                   y = country_name, 
+                   xend = quadrillion_tons, 
+                   yend = country_name,
+                   color = quadrillion_tons),
+               show.legend = FALSE
+               ) +
+  theme_light() +
+  scale_x_continuous(expand = c(0,0), 
+                     limits = c(0, 110), 
+                     breaks = seq(0, 120, by = 20)) +
+  theme(panel.grid.minor.x = element_blank(), 
+        panel.grid.minor.y = element_blank()) +
+  scale_color_gradientn(colors = c("orange","magenta","purple")) +
+  labs(x = expression(Total~CO[2]~emitted~(10^15~tons)~(2000-2018)), 
+       title = "Top 20 carbon dioxide emitting countries",
+       subtitle = "Total emitted, 2000 - 2018",
+       y = "") # Not sure if showing this...
+  
+  
+
+```
+
+## END LAB 2
+
