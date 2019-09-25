@@ -182,8 +182,8 @@ np_ex_12 <- hp_data %>%
 
 ggplot(data = np_ex_12, aes(x = character, y = total)) +
   geom_col() +
-  labs(x = "Total mentions",
-       y = "Character",
+  labs(x = "Character",
+       y = "Total mentions",
        title = "My Title!") +
   coord_flip()
 
