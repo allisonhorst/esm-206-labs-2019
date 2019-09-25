@@ -35,6 +35,9 @@
 # Run code with Command + Return, or Command + Shift + Return
 # Ask: why does it make sense to include this in a script, versus running this in the Console?
 
+# install.packages('tidyverse')
+# install.packages("janitor")
+
 library(tidyverse)
 library(janitor)
 
