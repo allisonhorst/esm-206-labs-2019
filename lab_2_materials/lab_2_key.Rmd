@@ -215,7 +215,8 @@ Now, let's make something actually nice:
 
 ```{r}
 
-ggplot(co2_top20, aes(y = fct_reorder(country_name, quadrillion_tons), x = quadrillion_tons)) +
+ggplot(co2_top20, aes(y = fct_reorder(country_name, quadrillion_tons), 
+                      x = quadrillion_tons)) +
   geom_point(aes(color = quadrillion_tons),
              size = 3,
              show.legend = FALSE) +
@@ -232,7 +233,7 @@ ggplot(co2_top20, aes(y = fct_reorder(country_name, quadrillion_tons), x = quadr
                      breaks = seq(0, 120, by = 20)) +
   theme(panel.grid.minor.x = element_blank(), 
         panel.grid.minor.y = element_blank()) +
-  scale_color_gradientn(colors = c("orange","magenta","purple")) +
+  scale_color_gradientn(colors = c("orange","magenta","blueviolet")) +
   labs(x = expression(Total~CO[2]~emitted~(10^15~tons)~(2000-2018)), 
        title = "Top 20 carbon dioxide emitting countries",
        subtitle = "Total emitted, 2000 - 2018",
@@ -241,6 +242,8 @@ ggplot(co2_top20, aes(y = fct_reorder(country_name, quadrillion_tons), x = quadr
   
 
 ```
+
+Knit your document! Now it's all saved, and the fully reproducible code means that if I closed this project and reopened, all I'd have to do to recreate this beautiful graph is to run the code again. Yay! 
 
 ## END LAB 2
 

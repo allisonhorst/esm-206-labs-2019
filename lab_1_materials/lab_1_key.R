@@ -11,7 +11,7 @@
 # Create a new .Rproj and add files to working directory
 # Attach packages with library()
 # Read in a CSV with readr::read_csv()
-# Explore data with base functions (e.g. View, names, head, tail)
+# Explore data with base functions (e.g. View, names, head, tail, etc.)
 # Do some basic wrangling with dplyr (select, filter, mutate, group_by, summarize)
 # Use the pipe operator
 # Create basic graphs in ggplot2
@@ -36,7 +36,7 @@
 # Ask: why does it make sense to include this in a script, versus running this in the Console?
 
 # install.packages('tidyverse')
-# install.packages("janitor")
+# install.packages('janitor')
 
 library(tidyverse)
 library(janitor)
