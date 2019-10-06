@@ -1,0 +1,292 @@
+---
+title: "ESM 206 Lab 3"
+subtitle: "Reading in Excel files, exploratory & final dataviz, intro to `here::here()`, exporting figures, `dplyr::case_when()`, `purrr::modify_if()`"
+author: "Allison Horst"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+### Lab 3 Objectives:
+
+- R Markdown continued
+- Meet the `here` package for better file paths
+- Reading in data from a text file 
+- Write data to a CSV file
+- Exploratory & final dataviz (jitter, scatter, violin, ridgeline, polar coordinates)
+- Saving figures with `ggplot2::ggsave()`
+- Intro to some loops with `purrr`
+- If-else statements with `dplyr::case_when()`
+
+
+### Data: NOAA Santa Barbara buoy (Station ID NTBC1) data, 2018
+
+**Source:** https://www.ndbc.noaa.gov/station_history.php?station=ntbc1
+**Data from:** National Buoy Data Center (NOAA), accessed 10/4/2019
+**Data descriptions:** https://www.ndbc.noaa.gov/measdes.shtml
+
+## Part 0. Set-up
+
+- Create a new R project 'esm_206_lab_3' within your labs folder
+- Within the project directory, add a new subfolder *raw_data*
+- Create a second subfolder called *intermediate_data*
+- Drop the text file 'sb_buoy_2018.txt' into the *raw_data* subfolder
+
+## Part 1. Attach packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(ggridges)
+```
+
+## Part 2. Read in data from a text file (sb_buoy_2018.txt)
+
+Use `here::here()` to let R know where to find the data!
+And use `readr::read_table()` to "read whitespace-separated columns into a tibble." 
+
+```{r}
+
+sb_buoy <- readr::read_table(here::here("lab_3_materials",
+                                 "raw_data", 
+                                 "sb_buoy_2018.txt"),
+                             na = c("99", "999", "99.0", "999.0")) %>% # Note: students will just have "raw_data" here
+  janitor::clean_names() %>% 
+  dplyr::slice(-1) %>% # Use dplyr::slice() to remove or keep rows by position
+  select(number_yy:gst, atmp)
+
+```
+
+## Part 3. Write a file to a subdirectory with `here::here()`
+
+Now if I want to write an intermediat file (to keep this cleaned up version...)
+
+```{r}
+write_csv(sb_buoy, here("lab_3_materials", "intermediate_data", "sb_buoy.csv"))
+```
+
+## Part 4. Make the 'month' column ordered factor with month names
+
+First, check it out:
+```{r}
+
+class(sb_buoy$mm) # It's a character
+unique(sb_buoy$mm) # All the values here
+
+# Check out month.abb() built-in vector
+month.abb # Cool - pre-stored month abbreviates
+
+sb_buoy_month <- sb_buoy %>% 
+  mutate(mm = as.numeric(mm)) %>% # Convert month to numeric
+  mutate(
+    month_name = month.abb[mm] # Note square brackets here
+  ) 
+
+# Check the class of month_name
+class(sb_buoy_month$month_name)
+
+# But that means if we plot it, R will just do it alphabetically. 
+# We want to be able to assign these an *order*
+# So we need to make it a factor, and specify the factor levels (Jan, Feb, etc.)
+# Use mutate() to overwrite the column (carefully...)
+
+sb_buoy_fct <- sb_buoy_month %>% 
+  mutate(
+    month_name = fct_relevel(month_name, levels = month.abb)
+  )
+
+levels(sb_buoy_fct$month_name)
+# Now R will understand that order matters, & will plot accordingly
+
+```
+
+## Part 5. `purrr` functions for loops, and some dataviz
+
+First, let's explore air temperatures (atmp) by month:
+```{r}
+
+ggplot(sb_buoy_fct, aes(x = month_name, y = atmp)) +
+  geom_jitter() # Weird. Why? 
+
+# Always check classes of things: here, notice that all are read in as character. 
+# Not great. Let's convert multiple columns to "numeric" at once using purrr::map()
+# purrr::map
+
+```
+
+YUCK that's wrong. 
+
+Check the class of the variables with `summary()`. 
+
+We see that these "values" are stored as characters, when the need to be values. One option is to use as.numeric() for each column separately. Or we can use `purrr::modify_if()` to apply a function to *multiple* variables that meet a condition by looping over them. 
+
+```{r}
+
+sb_buoy_num <- sb_buoy_fct %>% 
+  purrr::modify_if(is.character, as.numeric)
+
+```
+
+Now let's try looking at the air temperatures again: 
+```{r}
+
+ggplot(sb_buoy_num, aes(x = month_name, y = atmp)) +
+  geom_jitter() # Too many points, but trends clear
+
+ggplot(sb_buoy_num, aes(x = month_name, y = atmp)) +
+  geom_violin() # A little hard to compare still, but good
+
+ggplot(sb_buoy_num, aes(x = atmp)) +
+  geom_density(aes(fill = month_name),
+               color = NA,
+               show.legend = FALSE) + # Cool but useless
+  facet_wrap(~month_name) +
+  theme_light()
+
+```
+
+Hmmm but that's hard to see because of order, even if we facet_wrap(). Here are a couple of better options: 
+
+### Option 1: overlay all single month plots on top of the *overall* plot for data from all months so that there is a "reference population" for each month: 
+
+- How? We need to add a layer where the faceting variable is set to `NULL`.
+- Here, we'll make a histogram: 
+
+```{r}
+
+ggplot(sb_buoy_num, aes(x = atmp)) +
+  geom_histogram(data = transform(sb_buoy_num, month_name = NULL), fill = "gray90") +
+  geom_histogram(aes(fill = month_name),
+               color = NA,
+               show.legend = FALSE) + # Cool but useless
+  facet_wrap(~month_name) +
+  theme_light()
+
+ggsave(here("lab_3_materials", "figures", "temp_hist.png"), height = 6, width = 6)
+
+
+```
+
+### Option 2: a ridgeline plot with `ggridges`
+
+```{r}
+
+temp_graph <- ggplot(sb_buoy_num, aes(x = atmp, y = month_name)) +
+  geom_density_ridges(fill = "gray60",
+                      color = "gray10",
+                      size = 0.2) +
+  scale_x_continuous(lim = c(5,25)) +
+  theme_minimal() +
+  labs(x = "Air temperature (Celsius)",
+       y = "Month (2018)",
+       title = "SB buoy monthly temperatures (2018)",
+       subtitle = "Source: NOAA Nationa Buoy Data Center") +
+  scale_y_discrete(limits = rev(levels(sb_buoy_num$month_name))) # rev months
+
+temp_graph
+
+```
+
+What if I wanted to save this? 
+
+```{r}
+
+ggsave(here("lab_3_materials", "figures", "temp_graph.png"), height = 6, width = 6)
+# Note: you can update size, resolution, etc. within ggsave
+```
+
+Let's explore a relationship: 
+
+Windspeed vs. wind direction?
+```{r}
+
+# A few different graph types: 
+
+# Plain scatterplot
+ggplot(sb_buoy_num, aes(x = wdir, y = wspd)) +
+  geom_point(aes(color = wspd)) 
+
+# 2d density plot
+ggplot(sb_buoy_num, aes(x = wdir, y = wspd)) +
+  geom_density_2d()
+
+# Hex density plot
+ggplot(sb_buoy_num, aes(x = wdir, y = wspd)) +
+  geom_hex(bins = 50) +
+  scale_fill_gradient(low = "orange", high = "red")
+
+# Or, use scale_fill_gradientn(colors = c("white","yellow","orange","purple"))
+
+# Finalize hex density and wrap by month
+ggplot(sb_buoy_num, aes(x = wdir, y = wspd)) +
+  geom_hex(bins = 30) +
+  scale_fill_gradientn(colors = c("yellow","orange","purple")) +
+  scale_y_continuous(lim = c(0,10), expand = c(0,0)) +
+  scale_x_continuous(lim = c(0,360), expand = c(0,0)) +
+  theme_dark() +
+  facet_wrap(~month_name) # See how it changes by month? 
+
+```
+
+It does look like there is some pattern to the windspeeds (like, we rarely have strong winds coming from ~180 degrees, but a lot of strong winds coming from ~240 degrees). Might make sense here to plot on a polar coordinate system: 
+
+```{r}
+
+ggplot(sb_buoy_num, aes(x = wdir, y = wspd)) +
+  geom_density_2d(aes(color = month_name),
+                  size = 0.2,
+                  show.legend = FALSE) +
+  coord_polar() +
+  scale_x_continuous(breaks = c(0, 90, 180, 270), labels = c("N","E","S","W")) +
+  facet_wrap(~month_name) +
+  theme_minimal() +
+  labs(x = "", y = "windspeed (mph)", title = "SB windspeed and direction (2018)")
+
+ggsave(here("lab_3_materials", "figures", "wdir_polar.jpg"))
+
+```
+
+## Part 6. `dplyr::case_when()` for easier if-else statements
+
+Let's say that we actually want to just explore things on a *seasonal* level, where:
+
+- Spring = Mar, Apr, May
+- Summer = Jun, Jul, Aug
+- Autumn = Sep, Oct, Nov
+- Winter = Dec, Jan, Feb
+
+Here, we'll make a new column that contains the *season* associated with each observation using `dplyr::mutate()` + `dplyr::case_when()` 
+```{r}
+
+sb_buoy_season <- sb_buoy_num %>% 
+  dplyr::mutate(
+    season = dplyr::case_when(
+      month_name %in% c("Mar", "Apr", "May") ~ "spring",
+      month_name %in% c("Jun", "Jul", "Aug") ~ "summer",
+      month_name %in% c("Sep", "Oct", "Nov") ~ "autumn",
+      month_name %in% c("Dec", "Jan", "Feb") ~ "winter"
+    )
+  )
+
+```
+
+Then we could make calculations by season, for example: 
+
+What is the mean windspeed by season for 2018? 
+```{r}
+
+mean_wind <- sb_buoy_season %>% 
+  group_by(season) %>% 
+  summarize(
+    mean_wspd = mean(wspd)
+  )
+
+mean_wind
+
+```
+
+### END LAB. 
