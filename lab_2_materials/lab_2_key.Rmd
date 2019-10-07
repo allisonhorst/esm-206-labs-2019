@@ -129,7 +129,7 @@ Now this is closer to tidy format, but the column names are still annoying. Clea
 
 wb_df <-  wb_tidy %>% 
   clean_names() %>% 
-  select(-x64) %>% 
+  select(-x64, -indicator_code, -country_code) %>% 
   mutate(year = as.numeric(year)) # was character bc started as col name
   
 ```
@@ -140,20 +140,20 @@ We can use the unique() function: `unique(wb_df$country_name` or `unique(wb_df$i
 
 ## 5. More data wrangling
 
-Let's say we're interested in finding the top 20 CO2 emitting countries (using indicator "CO2 emissions (kt)") from 2000 - 2018. 
+Let's say we're interested in finding the top 20 CO2 emitting countries (using indicator "CO2 emissions (kt)") from 2008 - 2018. 
 
 To do that, let's: 
 
-1. Make a subset that only contains data for "CO2 emissions (kt)" collected from 2000 - 2018
+1. Make a subset that only contains data for "CO2 emissions (kt)" collected from 2008 - 2018
 2. Group the data by Country Name
 3. Find the sum of the CO2 emissions for each group
-4. Make a nice plot of their total CO2 emissions from 2000 - 2018
+4. Make a nice plot of their total CO2 emissions from 2008 - 2018
 
 ```{r}
 
 wb_co2 <- wb_df %>% 
-  select(-country_code, -indicator_code) %>% 
-  filter(between(year, 2000, 2018)) %>%  # Note: can also use year >= 2000, year <= 2019
+  filter(indicator_name == "CO2 emissions (kt)") %>% 
+  filter(between(year, 2008, 2018)) %>%  # Note: can also use year >= 2008, year < 2019
   group_by(country_name) %>% 
   summarize(
     total = sum(value, na.rm = TRUE)
@@ -166,7 +166,9 @@ But here we see a problem: the World Bank data, as downloaded, has a bunch of ag
 
 To do that, there is another data frame we've read in called country_list, that only contains the names of the different countries (importantly, in the same format as they exist in our wb_co2 df). We will JOIN our data frames, in a way that only countries in wb_co2 that have a match in the 'country' column of country_list will still remain. 
 
-But R will look for columns with the *same exact name* to try to join dfs by - here, we have our countries in a column called "country_name" in wb_co2, but only called "country" in country_list. First, we'll update the column name to "country_name" in country_list so that there is a match for R to find when it tries to join them. 
+But R will first look for columns with the *same name* to try to join dfs by - here, we have our countries in a column called "country_name" in wb_co2, but only called "country" in country_list. First, we'll update the column name to "country_name" in country_list so that there is a match for R to find when it tries to join them.
+
+There is another option, to say "country_name" = "country" as an argument to join by.
 
 ```{r}
 
@@ -186,18 +188,17 @@ wb_antijoin2 <- country_ls_new %>%
 
 ```
 
-Now let's just find the top 20 CO2 emitters from 2000 - 2018, convert to trillions of tons (instead of kt) and make a nice graph: 
+Now let's just find the top 20 CO2 emitters from 2000 - 2018
 
 ```{r}
 co2_top20 <- wb_join %>% 
-  head(20) %>% 
-  mutate(quadrillion_tons = total/1e12)
+  head(20)
 ```
 
 What are some options? 
 ```{r}
 
-ggplot(co2_top20, aes(x = country_name, y = quadrillion_tons)) +
+ggplot(co2_top20, aes(x = country_name, y = total)) +
   geom_col() + # GROSS! 
   coord_flip() # Still so gross! 
 
@@ -205,7 +206,7 @@ ggplot(co2_top20, aes(x = country_name, y = quadrillion_tons)) +
 
 # Use forcats::fct_reorder() to change the order of levels
 
-ggplot(co2_top20, aes(x = fct_reorder(country_name, quadrillion_tons), y = quadrillion_tons)) +
+ggplot(co2_top20, aes(x = fct_reorder(country_name, total), y = total)) +
   geom_col() + 
   coord_flip()# Still ew! But at least this is in order? 
 
@@ -215,28 +216,25 @@ Now, let's make something actually nice:
 
 ```{r}
 
-ggplot(co2_top20, aes(y = fct_reorder(country_name, quadrillion_tons), 
-                      x = quadrillion_tons)) +
-  geom_point(aes(color = quadrillion_tons),
+ggplot(co2_top20, aes(y = fct_reorder(country_name, total), 
+                      x = total)) +
+  geom_point(aes(color = total),
              size = 3,
              show.legend = FALSE) +
   geom_segment(aes(x = 0, 
                    y = country_name, 
-                   xend = quadrillion_tons, 
+                   xend = total, 
                    yend = country_name,
-                   color = quadrillion_tons),
+                   color = total),
                show.legend = FALSE
                ) +
   theme_light() +
-  scale_x_continuous(expand = c(0,0), 
-                     limits = c(0, 110), 
-                     breaks = seq(0, 120, by = 20)) +
   theme(panel.grid.minor.x = element_blank(), 
         panel.grid.minor.y = element_blank()) +
   scale_color_gradientn(colors = c("orange","magenta","blueviolet")) +
-  labs(x = expression(Total~CO[2]~emitted~(10^15~tons)~(2000-2018)), 
+  labs(x = expression(Total~CO[2]~emitted~(kilotons)~(2000-2018)), 
        title = "Top 20 carbon dioxide emitting countries",
-       subtitle = "Total emitted, 2000 - 2018",
+       subtitle = "Total emitted, 2008 - 2018",
        y = "") # Not sure if showing this...
   
   
