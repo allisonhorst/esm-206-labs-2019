@@ -63,7 +63,7 @@ sb_buoy <- readr::read_table(here::here("lab_3_materials",
 
 ## Part 3. Write a file to a subdirectory with `here::here()`
 
-Now if I want to write an intermediat file (to keep this cleaned up version...)
+Now if I want to write an intermediate file (to keep this cleaned up version...)
 
 ```{r}
 write_csv(sb_buoy, here("lab_3_materials", "intermediate_data", "sb_buoy.csv"))
@@ -97,7 +97,10 @@ class(sb_buoy_month$month_name)
 sb_buoy_fct <- sb_buoy_month %>% 
   mutate(
     month_name = fct_relevel(month_name, levels = month.abb)
-  )
+  ) 
+### could also arrange(as.numeric(mm)) %>% mutate(month_name = fct_inorder(month_name))
+### -- this method would work for (e.g.) the country salmon production 
+### data where the order is not known in advance.
 
 levels(sb_buoy_fct$month_name)
 # Now R will understand that order matters, & will plot accordingly
@@ -128,6 +131,7 @@ We see that these "values" are stored as characters, when the need to be values.
 
 sb_buoy_num <- sb_buoy_fct %>% 
   purrr::modify_if(is.character, as.numeric)
+### Casey question: what if we had left month_name as character?
 
 ```
 
@@ -218,6 +222,7 @@ ggplot(sb_buoy_num, aes(x = wdir, y = wspd)) +
 ggplot(sb_buoy_num, aes(x = wdir, y = wspd)) +
   geom_hex(bins = 50) +
   scale_fill_gradient(low = "orange", high = "red")
+### Casey:  this doesn't work for me, nor does the next... thoughts?
 
 # Or, use scale_fill_gradientn(colors = c("white","yellow","orange","purple"))
 
