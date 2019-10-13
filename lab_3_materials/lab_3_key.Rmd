@@ -83,7 +83,7 @@ unique(sb_buoy$mm) # All the values here
 month.abb # Cool - pre-stored month abbreviates
 
 sb_buoy_month <- sb_buoy %>% 
-  mutate(mm = as.numeric(mm)) %>% # Convert month to numeric
+  mutate(mm = as.numeric(mm)) %>% # Convert month to numeric %>% 
   mutate(
     month_name = month.abb[mm] # Note square brackets here
   ) 
