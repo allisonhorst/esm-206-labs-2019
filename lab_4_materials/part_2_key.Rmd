@@ -1,0 +1,54 @@
+---
+title: "part_2_key"
+author: "Allison Horst"
+date: "10/20/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Lab prompt: https://docs.google.com/document/d/1KX6_bKA8BOO0NdsUviVi0HCT-q9iTCtTYsS1dGNQJfU/edit?usp=sharing
+
+### Part 2: Git version-controlled R Project from scratch
+
+- For this part, you should have created a new repo in GitHub
+- Then cloned to create a version-controlled project in R
+- Then opened a new .Rmd...and that's where this example starts!
+
+```{r, include = FALSE}
+# Attach packages
+
+library(tidyverse)
+library(plotly)
+library(DT)
+
+```
+
+#### Interactive plot of Edgar Anderson's iris data
+
+```{r, echo = FALSE}
+iris_graph <- ggplot(data = iris, aes(x = Petal.Width, y = Petal.Length)) +
+  geom_point(aes(size = Sepal.Width, 
+                 color = Species),
+             alpha = 0.4) +
+  scale_color_manual(values = c("purple","orange","black")) +
+  theme_minimal() +
+  labs(x = "petal width (cm)",
+       y = "petal length (cm)",
+       title = "Iris metrics")
+
+ggplotly(iris_graph, tooltip = c("Species"))
+
+
+```
+
+#### Interactive table of animal sleep data (msleep) with {DT}
+
+```{r, echo = FALSE}
+
+datatable(msleep)
+
+```
+

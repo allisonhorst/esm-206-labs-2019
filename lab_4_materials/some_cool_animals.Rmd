@@ -1,0 +1,62 @@
+---
+title: "Some cool animal facts"
+author: "Allison Horst"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##### A note on this project:
+
+The organization of this document probably seems strange. That's because it's part of an entire multi-part lab for ESM 206, which students will create in multiple projects (but are combined here for easier sharing). Hence the weird unrelated pieces all put together in this project (students will create Parts 2 & 3 as separate projects).
+
+[Link to the Lab 4 prompt](https://docs.google.com/document/d/1KX6_bKA8BOO0NdsUviVi0HCT-q9iTCtTYsS1dGNQJfU/edit?usp=sharing)
+
+### Cool animal fun facts {.tabset .tabset-fade}
+
+#### SHARKS!!!
+
+![Great white at Seal Island, South Africa. Photographer: Chris Brunskill Ltd/Corbis News via Getty Images](img/great_white.jpg)
+
+##### Some great white shark facts (from [NatGeo Kids](https://www.natgeokids.com/uk/discover/animals/sea-life/great-white-sharks/)):
+
+- Great white sharks have ~ 300 teeth
+- And swim way faster than you (25 mph)
+- And are listed as vulnerable on the IUCN Red List
+
+#### California condors
+
+![Photo: Madison Roberts/Audubon Photography Awards](img/condor.jpg)
+
+##### Some California condor facts (from [Animal Fact Guide](https://animalfactguide.com/animal-facts/california-condor/)):
+
+- By 1987, there were only 10 California condors living in the wild
+- They are the largest flying bird in North America
+- Critically endangered on the IUCN Red List (> 400 today)
+
+#### American pika
+
+![Photo: J. MacKenzie / Pikaworks](img/pika.jpg)
+
+##### Some American pika facts (from [OneKindPlanet.org](https://onekindplanet.org/animal/pika-american/)):
+
+- Pika are of order *Lagomorpha* (which also includes rabbits)
+- Pika live in high altitude talus slopes
+- American pika are already disappearing from the Sierra Nevada
+
+#### Ringtail cats
+
+![Photo: Courtesy of VA Zoo](img/ringtail_cat.jpg)
+
+##### Ringtail cats fun facts: 
+
+- Can rotate their hind feet 180 degrees to climb better
+- They are not endangered, just very elusive
+- Closely related to raccoons
+
+###
+
+----------
+**Disclaimer:** This document is only for R Markdown & GitHub teaching purposes in ESM 206, Bren School of Environmental Science and Management (UCSB) 

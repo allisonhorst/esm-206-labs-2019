@@ -215,7 +215,7 @@ Windspeed vs. wind direction?
 ggplot(sb_buoy_num, aes(x = wdir, y = wspd)) +
   geom_point(aes(color = wspd)) 
 
-# 2d density plot
+# 2d density plot (bins in case of no hexbin)
 ggplot(sb_buoy_num, aes(x = wdir, y = wspd)) +
   geom_density_2d()
 
