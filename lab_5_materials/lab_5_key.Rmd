@@ -268,4 +268,21 @@ ttest_2 <- t.test(size_mm ~ site, data = lobster_2sample)
 
 And similarly use in-line referencing to add text directly from coded objects. Woo reproducibility! 
 
+#### 8. A new type of graph: `geom_tile()` for heatmaps
+
+Take a look at `lobster_ysite` to remind yourself of the data frame. Let's make a geom_tile() plot, with cell colors dependent on the value in column 'n'. 
+
+```{r}
+ggplot(data = lobster_ysite, aes(x = obs_year, y = site)) +
+  geom_tile(aes(fill = n)) +
+  scale_fill_gradientn(colors = c("black","purple","magenta")) +
+  scale_x_continuous(breaks = seq(2012, 2018), expand = c(0,0)) +
+  scale_y_discrete(expand = c(0,0)) +
+  labs(x = "Year",
+       y = "Site")
+```
+
+
+
+
 #### END LAB.
