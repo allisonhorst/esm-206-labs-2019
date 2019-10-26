@@ -66,7 +66,33 @@ lobster_tidy <- lobster_abundance %>%
 
 Now each lobster observed has been placed into its own *row* - which is good, because now we don't have to worry about weights when we find summary statistics. 
 
-#### 4. Parse dates for lobster observations
+#### 4. Always look at your data. Always. 
+
+Various by site (the variable we'll consider later on):  
+```{r}
+
+# Jitterplot
+ggplot(lobster_tidy, aes(x = site, y = size_mm)) +
+  geom_jitter(aes(color = site)) 
+
+# Violin plot: 
+ggplot(lobster_tidy, aes(x = site, y = size_mm)) +
+  geom_violin()
+
+# Histogram:
+ggplot(lobster_tidy, aes(x = size_mm)) +
+  geom_histogram() +
+  facet_wrap(~site)
+
+# Quantile-quantile plot: 
+ggplot(lobster_tidy, aes(sample = size_mm)) +
+  geom_qq() +
+  facet_wrap(~site)
+
+```
+
+
+#### 5. Parse dates for lobster observations
 
 Notice that the existing class of the `date` variable is a character. Boo.
 ```{r}
@@ -106,7 +132,7 @@ A really cool thing about that? When we use `lubridate::month()`, it's auto stor
 
 Now let's find some counts of lobster observations using different groupings. 
 
-#### 5. Find counts by groups with `dplyr::count()`
+#### 6. Find counts by groups with `dplyr::count()`
 
 There are a bunch of ways to count things based on different variables in R. So many that sometimes it's challenging to know which to use. We'll touch on a few of the most generally useful ones here. 
 
@@ -187,7 +213,59 @@ Hooray!
 
 More information on tally/count: see descriptions and examples from [tidyverse.org](https://dplyr.tidyverse.org/reference/tally.html). 
 
-#### 6. One- and two-sample t-tests with `t.test()`
+#### 7. One- and two-sample t-tests with `t.test()`
 
+So we found the mean and sd of lobster sizes (see object *lobster_summary*). But what if we ask the question: Is there a significant difference in lobster sizes between Naples Reef and Carpinteria Reef? 
 
+We've already looked at the data (jitterplots, histograms, etc.) and it seems like a t-test would be an appropriate test. Ask here: why? Sample size, distribution, data type, etc....
 
+OK, so we've decided that a t-test is appropriate and useful. How do we run a t-test in R? 
+
+##### Method 1: Isolate vectors of observations, then use `t.test()`
+
+First, we could get the vectors of observations from the two groups we want to compare, then add them as arguments to `t.test()`. Like this: 
+
+```{r}
+# Get a vector only containing size observations (mm) for lobsters at Naples Reef (site == "NAPL"):
+
+napl_sample <- lobster_tidy %>% 
+  filter(site == "NAPL") %>% 
+  pull(size_mm)
+
+# Get a vector only containing size observations (mm) for lobsters at Mohawk Reef (site == "MOHK"): 
+
+mohk_sample <- lobster_tidy %>% 
+  filter(site == "MOHK") %>% 
+  pull(size_mm)
+```
+
+Check out those two objects. Note that they are *vectors* only containing size observations for lobsters at the two sites. 
+
+We can add those as our first two arguments in `t.test()` to run a two-sample t-test:
+```{r}
+mohk_napl_ttest <- t.test(mohk_sample, napl_sample)
+mohk_napl_ttest
+```
+
+Interpret the outcome. Now let's say we want to write a statement about the result (for now, in very "stats class" language, which we'll ditch quickly):
+
+Mean lobster size differed significantly between Mohawk and Naples Reefs (t(`r round(mohk_napl_ttest$parameter, 2)`) = `r round(mohk_napl_ttest$statistic, 2)`, *p* < 0.001). 
+
+**Remember**: the more important things are the data itself, means comparison, effect size, etc. - which we'll also get to. 
+
+##### Method 2: Filter to only include 2 groups, then use `t.test(A ~ B)`
+
+```{r}
+# First, filter to only include 2 groups (MOHK & NAPL):
+
+lobster_2sample <- lobster_tidy %>% 
+  filter(site %in% c("NAPL", "MOHK"))
+
+# Then:
+
+ttest_2 <- t.test(size_mm ~ site, data = lobster_2sample)
+```
+
+And similarly use in-line referencing to add text directly from coded objects. Woo reproducibility! 
+
+#### END LAB.
