@@ -1,0 +1,193 @@
+---
+title: 'ESM 206 Lab 5'
+author: "Allison Horst"
+date: "10/25/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Counts, uncounts, t-tests, ungroup, lubridate
+
+#### Lab 5 objectives: 
+
+- Get counts of grouped observations using `count()`
+- `ungroup()` grouped data (and know why that can be essential) 
+- Perform one and two sample t-tests with `t.test()`
+- Parse dates with `lubridate`
+- Build a `geom_tile()` heatmap
+
+Set-up: Students should Fork & Clone the **allisonhorst/esm-206-f2019-lab-5** repo from GitHub prior to the lab to work with materials locally. 
+
+### Lab 5 data: SBC LTER Lobster abundance and fishing pressure
+
+**Link:** https://portal.edirepository.org/nis/mapbrowse?scope=knb-lter-sbc&identifier=77&revision=newest
+
+**Citation:** Reed D. 2019. SBC LTER: Reef: Abundance, size and fishing effort for California Spiny Lobster (Panulirus interruptus), ongoing since 2012. Environmental Data Initiative. https://doi.org/10.6073/pasta/a593a675d644fdefb736750b291579a0. Dataset accessed 10/25/2019.
+
+#### 1. Attach packages
+
+Required: `tidyverse`, `here`, `janitor`
+```{r, message = FALSE, warnings = FALSE}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+#### 2. Read in data
+
+- **lobster_abundance.csv**
+- **lobster_traps.csv**
+
+```{r, message = FALSE}
+lobster_abundance <- read_csv(here("lab_5_materials",
+                                   "data",
+                                   "lobster_abundance.csv"),
+                              na = "-99999") %>% 
+                              clean_names()
+```
+
+First, let's ask: How is *lobster_abundance* not in tidy format? 
+
+- Each observation (lobster) is not in it's own row. (e.g. sort by `lobster_count` from high to low: there are sometimes many lobsters represented in a single row!). 
+
+- This is called a **frequency table**, but we want this to be in **case format** - so we need to expand the data frame so that each lobster is in its own row in order to be able to do analyses. 
+
+We can use `tidyr::uncount()` to expand a df by a frequency variable (here, by the value in `lobster_count`).
+
+#### 3. Use `tidyr::uncount()` to convert to tidy format (one observation per row)
+
+```{r}
+lobster_tidy <- lobster_abundance %>% 
+  tidyr::uncount(lobster_count)
+```
+
+Now each lobster observed has been placed into its own *row* - which is good, because now we don't have to worry about weights when we find summary statistics. 
+
+#### 4. Parse dates for lobster observations
+
+Notice that the existing class of the `date` variable is a character. Boo.
+```{r}
+class(lobster_abundance$date)
+```
+
+The `lubridate` package (part of the `tidyverse`), and is built to make it easier to deal with date-time data. Here, we'll use `lubridate::mdy()` to help R understand it's a date, and work with the pieces (month, day and year) more easily. 
+
+**Note**: we're using `mdy()` because that's the existing format of the date column (mm/dd/yy). Check `?ymd` to see all the different options based on the format of your date column. Cool. 
+
+Add a new column with `mutate()` that is a *date* using `mdy()`: 
+```{r}
+lobster_date <- lobster_tidy %>% 
+  mutate(
+    date_new = lubridate::mdy(date)
+  )
+```
+
+Check it out! The *date_new* column is in nice ISO date format. Let's check the class:
+```{r}
+class(lobster_date$date_new)
+```
+
+Wooooo.
+
+Now that it's in date format, we can parse it. See `?month` and `?year` - to get or set components of a date or date-time. So here, we'll use `lubridate::month()` and `lubridate::year()` to create separate columns for the month and year. 
+
+For `month()`, we can even automatically convert to month abbreviation with argument `label = TRUE`. 
+
+```{r}
+lobster_parse_date <- lobster_date %>% 
+  mutate(obs_month = lubridate::month(date_new, label = TRUE),
+         obs_year = lubridate::year(date_new))
+```
+
+A really cool thing about that? When we use `lubridate::month()`, it's auto stored as an ordered factor booya (so we don't need to `fct_relevel()`). 
+
+Now let's find some counts of lobster observations using different groupings. 
+
+#### 5. Find counts by groups with `dplyr::count()`
+
+There are a bunch of ways to count things based on different variables in R. So many that sometimes it's challenging to know which to use. We'll touch on a few of the most generally useful ones here. 
+
+- `dplyr::count()`: groups, tallies, then ungroups (whoa)
+- `dplyr::tally()`: use `group_by()` first, then use `tally()` for counts, then manually need to `ungroup()`
+- `dplyr::n()`: number of observations in current group
+
+##### `count()` example 1: Count the number of lobsters by year and month:
+
+```{r}
+lobster_ym <- lobster_parse_date %>% 
+  count(obs_year, obs_month)
+
+lobster_ym
+```
+
+##### `count()` example 2: Count the number of lobsters by year and site:
+
+```{r}
+lobster_ysite <- lobster_parse_date %>% 
+  count(obs_year, site)
+
+lobster_ysite
+```
+
+##### `count()` example 3: Count the number of lobsters by site: 
+
+```{r}
+lobster_site <- lobster_parse_date %>% 
+  count(site)
+
+lobster_site
+```
+
+##### For comparison: group first, then use `tally()` to do the same thing. Other alternatives: `add_tally()`, `add_count()` for mutate versions. 
+```{r}
+lobster_tally <- lobster_parse_date %>% 
+  group_by(site) %>% 
+  tally()
+
+lobster_tally
+```
+
+What if we want to make a summary table that has a mean, sd, and the sample size? Use `dplyr::n()` to find the number of observations in the current group. 
+
+```{r}
+lobster_summary <- lobster_parse_date %>% 
+  group_by(site) %>% 
+  summarize(
+    mean_size = mean(size_mm, na.rm = TRUE),
+    sd_size = sd(size_mm, na.rm = TRUE),
+    sample_n = n()
+  )
+
+lobster_summary
+```
+
+So, to reiterate - three ways to do the same thing to get sample sizes: 
+```{r, eval = FALSE}
+lobster_n <- lobster_parse_date %>% 
+  group_by(site) %>% 
+  summarize(
+    n = n()
+  ) %>% 
+  ungroup()
+
+lobster_tally <- lobster_parse_date %>% 
+  group_by(site) %>% 
+  tally() %>% 
+  ungroup()
+
+lobster_count <- lobster_parse_date %>% 
+  count(site)
+
+```
+
+Hooray! 
+
+More information on tally/count: see descriptions and examples from [tidyverse.org](https://dplyr.tidyverse.org/reference/tally.html). 
+
+#### 6. One- and two-sample t-tests with `t.test()`
+
+
+
