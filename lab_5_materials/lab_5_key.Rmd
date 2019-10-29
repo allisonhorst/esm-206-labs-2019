@@ -9,12 +9,11 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Counts, uncounts, t-tests, ungroup, lubridate
+### Counts, uncounts, t-tests, lubridate
 
 #### Lab 5 objectives: 
 
 - Get counts of grouped observations using `count()`
-- `ungroup()` grouped data (and know why that can be essential) 
 - Perform one and two sample t-tests with `t.test()`
 - Parse dates with `lubridate`
 - Build a `geom_tile()` heatmap
