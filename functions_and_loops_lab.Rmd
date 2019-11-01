@@ -17,6 +17,35 @@ library(tidyverse)
 
 ## Making a basic function
 
+First let's make a very straightforward and simple function.  This one takes a number, and adds one.
+
+```{r}
+add_one <- function(x) {
+  y <- x + 1
+}
+
+z <- add_one(x = 2) ### yay!
+zz <- add_one(3:7) ### works on vectors too!
+
+```
+
+Let's add an argument.  Best practice: an explicit `return()` at the end:
+```{r}
+add_some <- function(x, a = 1) {
+  y <- x + a
+  print('yay!')
+  return(y)
+}
+
+z <- add_some(2)
+zz <- add_some(3:7, 1000) # or add_some(3:7, a = 1000)
+
+```
+
+Note: a good practice is to name functions using a verb, since they do a thing, i.e. add_some, calc_thing, etc.  (consider tidyverse functions)
+
+## Now something useful!
+
 Let's make a function to calculate the mean of a vector of values. First, let's create a vector values we can use for testing.  We'll use `rnorm()` to generate a pseudo-random set of numbers as a working sample, with a known mean and standard deviation.
 
 For reproducibility, we can set a "random seed" so we'll all get the same vector of "random" numbers.
@@ -37,7 +66,7 @@ mymean
 ```
 
 
-We can turn that basic code into a basic function.
+We can turn that basic code into a basic function.  Give it a verb name.
 ```{r}
 calc_mean <- function(x) {
   n <- length(x)
@@ -68,6 +97,19 @@ Most of the time we're working in the "global environnment" (see the "Environmen
 
 When you execute a function, R creates a new environment, like a pocket universe, separate from the global env.  The arguments (in this case, `x`) are a window through which you can pass info to that new universe.  The `return(...)` is a window through which the function can pass the result from that universe back to the global environment. 
 
+```{r}
+add_one ### check our function
+
+x <- 100
+y <- 200
+z <- add_one(x = 8)
+x
+y
+```
+
+
+Note that changes to variables inside the function are NOT communicated back to the global environment.  This is a good thing!
+
 A well written function should only communicate with the global environment through those windows - and otherwise cannot affect anything in the global environment.  Once the function finishes, it returns its value and then that pocket universe disappears forever.
 
 ## Improving the basic function
@@ -84,7 +126,7 @@ calc_mean(x = c(1, 2, 3, 4, NA))
 
 ### Let's update `calc_mean()` to deal with `NA`s.
 
-First let's make a test vector with some `NA`s.  (Also, let's learn about indexing to access specific elements in a vector).
+First let's make a test vector with some `NA`s.  (Also, let's learn about indexing to access specific elements in a vector). Use "index" numbers to tell which elements of the vector to change.
 ```{r}
 test_vec_w_NA <- test_vec
 test_vec_w_NA[5] <- NA
@@ -131,7 +173,7 @@ calc_mean2(test_vec_w_NA)
 mean(test_vec_w_NA, na.rm = TRUE) ### compare to base R function
 ```
 
-We can use this function anywhere we might use the regular `base::mean()`.  All it needs is a vector, which includes a column from a dataframe!
+We can use this function anywhere we might use the regular `base::mean()`.  All it needs is a vector, which can even be a column from a dataframe!
 
 ```{r}
 data(iris) ### load the built-in data
@@ -215,10 +257,10 @@ mean_results <- vector('numeric', length = sims)
 sd_results <- vector('numeric', length = sims)
 
 for(i in 1:sims) {
-  test_vec <- sample(x = 1:6, size = 20, replace = TRUE)
-  sim_mean <- calc_mean2(test_vec)
+  rolls_vec <- sample(x = 1:6, size = 20, replace = TRUE)
+  sim_mean <- calc_mean2(rolls_vec)
   mean_results[i] <- sim_mean
-  sd_results[i] <- calc_sd(test_vec)
+  sd_results[i] <- calc_sd(rolls_vec)
 }
 ```
 
