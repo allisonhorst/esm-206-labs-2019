@@ -54,6 +54,8 @@ For reproducibility, we can set a "random seed" so we'll all get the same vector
 set.seed(12345) ### can be any number; as long as you set this you should get
   ### the same "random" results every time you run it.
 test_vec <- rnorm(100, mean = 1, sd = 1)
+  ### rnorm(n, mean, sd) draws n times from a normal distribution with a given
+  ### mean and standard deviation.
 
 ### see what the built-in functions say:
 mean(test_vec)
@@ -184,7 +186,7 @@ iris_mean <- iris %>%
             mean_sepal_l = calc_mean2(sepal_length))
 ```
 
-## Using our function inside another function
+## Using our function inside another function (DEMO)
 
 Let's write a function to calculate standard deviation.  The formula for this is:
 $$s(x) = \sqrt{\text{Var}(x)} = \sqrt{\frac{1}{n-1} \sum_{i=1}^n(x - \bar x)^2}$$
@@ -237,44 +239,41 @@ for(k in 1:times) {
 
 A standard die has equal chances to land on each of its six sides.  This is a uniform distribution.
 ``` {r}
-### explore the distribution of die rolls
-die_rolls <- data.frame(roll = sample(1:6, size = 1000, replace = TRUE))
+### explore the distribution of die rolls, using sample()
+sample(1:6, size = 1); sample(1:6, size = 6); sample(1:6, size = 6, replace = TRUE)
 
+die_rolls <- data.frame(roll = sample(1:6, size = 1000, replace = TRUE))
+table(die_rolls)
 ggplot(die_rolls, aes(x = roll)) +
   geom_histogram(bins = 6, color = 'grey20', fill = 'darkred', 
                  size = 1, alpha = .8) +
   theme_minimal()
 ```
 
-OK cool, now let's make a loop to calculate a bunch of simulations.  Here let's simulate rolling a die 20 times, and calculate the mean and standard deviation.  Then we will repeat that experiment a bunch of times, i.e. iterate for many simulations.
+OK cool, now let's make a loop to calculate a bunch of simulations.  Here let's simulate an experiment where I roll a die 20 times, and calculate the mean.  Then we will repeat that experiment a bunch of times, i.e. iterate for many simulations.
 
 ``` {r}
 ### set up for a lot of simulations
 sims <- 10000
 
-### initialize empty results vectors that I will populate in the loop
+### initialize empty results vector that I will populate in the loop
 mean_results <- vector('numeric', length = sims)
-sd_results <- vector('numeric', length = sims)
 
 for(i in 1:sims) {
   rolls_vec <- sample(x = 1:6, size = 20, replace = TRUE)
   sim_mean <- calc_mean2(rolls_vec)
   mean_results[i] <- sim_mean
-  sd_results[i] <- calc_sd(rolls_vec)
 }
 ```
 
 Let's put the results into a dataframe and do some plots. 
 ``` {r}
 results_df <- data.frame(sim = 1:sims,
-                         mean = mean_results,
-                         sd   = sd_results) %>%
-  pivot_longer(names_to = 'param', values_to = 'value', -sim)
+                         mean = mean_results)
 
-ggplot(results_df, aes(x = value, fill = param)) +
+ggplot(results_df, aes(x = value)) +
   geom_histogram(alpha = .8) +
-  theme_minimal() +
-  facet_wrap( ~ param, nrow = 2, scales = 'free_x')
+  theme_minimal()
 ```
 
 If the probability distribution for a die roll is uniform, why are these looking like normal distributions?  Central Limit Theorem!
