@@ -1,0 +1,62 @@
+---
+title: "Flint, MI: misleading lead concentrations in residential tap water"
+author: "Allison Horst"
+date: "11/2/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+For a year and a half (summer 2014 - December 2015), city officials in Flint, MI directed residents to flush their faucets for 3 - 4 minutes before collecting samples for lead & copper corrosion testing. The guidelines were highly criticized by the EPA, as flushing could reduce Pb measured concentrations and imply lower exposure than residents were actually experiencing (more: [KJ Pieper et al. 2018](https://pubs.acs.org/doi/full/10.1021/acs.est.8b00791). 
+
+For more Flint residential testing and blood lead levels data: [michigan.gov](https://www.michigan.gov/flintwater/0,6092,7-345-76292_76294_76297---,00.html) 
+
+Read in the data: 
+```{r}
+flint_pb <- read_csv(here::here("lab_6_materials","flint_water.csv")) %>% 
+  clean_names() %>% 
+  rename(pb_immediate = pb_bottle_1_ppb_first_draw, pb_2min = pb_bottle_2_ppb_2_mins_flushing) 
+```
+
+We are asked: is there a significant difference between lead concentrations immediately sampled and after 2 minutes of flushing? 
+
+First, we'll look at the distributions & sample sizes:
+
+- With 276 observations each (paired), we have enough to say that by Central Limit Theorem we know the sampling distribution of means will be normal regardless of underlying population, so comparing means using a parametric test is OK
+
+- We should still LOOK at the data, anyway: 
+
+```{r}
+# Histograms:
+ggplot(flint_pb, aes(x = pb_immediate)) +
+  geom_histogram()
+
+ggplot(flint_pb, aes(x = pb_2min)) +
+  geom_histogram()
+
+# QQ plots:
+ggplot(flint_pb, aes(sample = pb_immediate)) +
+  geom_qq()
+
+ggplot(flint_pb, aes(sample = pb_2min)) +
+  geom_qq()
+
+# They are NOT normally distributed; we'll still say we want to compare means and can do that comfortably bc of CLT.
+
+```
+
+Paired t-test:
+```{r}
+my_flint_test <- t.test(flint_pb$pb_immediate, flint_pb$pb_2min, paired = TRUE, alternative = "greater")
+
+my_flint_test # Yes, lead in the immediate flush is significantly greater than in the post-2 minute flushing population. 
+```
+

@@ -1,0 +1,62 @@
+---
+title: "Beaver body temperatures t-test"
+author: "Allison Horst"
+date: "11/2/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+First, explore distributions (even if you're not asked to):
+```{r}
+ggplot(data = beaver1, aes(x = temp)) +
+  geom_histogram()
+
+ggplot(data = beaver1, aes(sample = temp)) +
+  geom_qq()
+
+ggplot(data = beaver2, aes(x = temp)) +
+  geom_histogram()
+
+ggplot(data = beaver2, aes(sample = temp)) +
+  geom_qq()
+
+# Beaver 2 may not be normally distributed, but sample sizes are large (both > 100), so Central Limit Theorem: means will be normally distributed, & we can proceed with a parametric test.
+
+# Also look at them side by side: 
+
+ggplot() +
+  geom_histogram(data = beaver1, aes(x = temp),
+                 fill = "red") +
+  geom_histogram(data = beaver2, aes(x = temp),
+                 fill = "blue")
+```
+
+Perform a t-test (a couple of different ways):
+
+1. Is there a significant difference in body temperatures between beaver 1 and beaver 2?
+```{r}
+
+beaver_diff <- t.test(beaver1$temp, beaver2$temp)
+
+```
+
+In-line report: See ?t.test 'values' section
+
+Mean body temperatures (^$\circ$^C) for beaver 1 (`r round(beaver_diff$estimate[1],2)`) and beaver 2 (`r round(beaver_diff$estimate[2],2)`) differ significantly (t(`r round(beaver_diff$parameter,2)`) = `r round(beaver_diff$statistic,2)`, *p* = `r round(beaver_diff$p.value,2)`). 
+
+**Consider just updating to p < 0.001 for very small p-values.**
+
+Another question: Is beaver 2 mean body temperature significantly higher than beaver 1? 
+
+```{r}
+beaver2_greater <- t.test(beaver2$temp, beaver1$temp, alternative = "greater")
+```
+
+Mean body temperature for beaver 2 is significantly greater than that for beaver 1 (t(`r round(beaver2_greater$parameter,2)`) = `r round(beaver2_greater$statistic,2)`, *p* = `r round(beaver2_greater$p.value,2)`). 
