@@ -271,7 +271,7 @@ Let's put the results into a dataframe and do some plots.
 results_df <- data.frame(sim = 1:sims,
                          mean = mean_results)
 
-ggplot(results_df, aes(x = value)) +
+ggplot(results_df, aes(x = mean)) +
   geom_histogram(alpha = .8) +
   theme_minimal()
 ```
