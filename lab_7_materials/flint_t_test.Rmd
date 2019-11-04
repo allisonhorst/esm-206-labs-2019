@@ -1,5 +1,5 @@
 ---
-title: "Flint, MI: misleading lead concentrations in residential tap water"
+title: "One-way, paired t-test example and a table"
 author: "Allison Horst"
 date: "11/2/2019"
 output: html_document
@@ -19,7 +19,7 @@ For a year and a half (summer 2014 - December 2015), city officials in Flint, MI
 
 For more Flint residential testing and blood lead levels data: [michigan.gov](https://www.michigan.gov/flintwater/0,6092,7-345-76292_76294_76297---,00.html) 
 
-Read in the data: 
+Here, we'll ask: Does the mean lead concentration (ppb) in water from sampled residences in Flint, MI 
 ```{r}
 flint_pb <- read_csv(here::here("lab_6_materials","flint_water.csv")) %>% 
   clean_names() %>% 
@@ -49,7 +49,7 @@ ggplot(flint_pb, aes(sample = pb_immediate)) +
 ggplot(flint_pb, aes(sample = pb_2min)) +
   geom_qq()
 
-# They are NOT normally distributed; we'll still say we want to compare means and can do that comfortably bc of CLT.
+# They are NOT normally distributed; we'll still say we want to compare means and can do that comfortably because of CLT.
 
 ```
 
