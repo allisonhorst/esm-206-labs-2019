@@ -1,0 +1,259 @@
+---
+title: "One-way and paired t-test examples, Cohen's d effeect size, and a table"
+subtitle: "ESM 206 take-home lab for Week 7"
+author: "Allison Horst"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+### Work through the following before lecture on Wednesday 11/13
+
+#### Attach packages
+
+Note: you probably need to install `effsize` and `kableExtra`
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(effsize) # you probably need to install this
+library(kableExtra) # you probably need to install this
+```
+
+### Paired and one-sided t-tests
+
+In class and labs so far, we've been doing two-sided t-tests (no directionality implied) to compare means based on two samples. We have been using *unpaired* data: data collected from two groups between which we have no reason to think that one observation in one group is associated with one (and only one) observation in the other group. 
+
+For example: If we're comparing mean urchin sizes at two sites, there's no reason to think that each urchin at site A is associated with a single urchin at site B. The data are *unpaired.* 
+
+In contrast, what if I have been monitoring the same 45 people to study the effects of a trial drug on blood pressure. Then we ask: Is there a significant difference in blood pressure before and after the drug trial? In that case, it doesn't make sense to compare Subject 4's "before" blood pressure to Subject 15's "after" blood pressure - we'd want to compare blood pressures within subjects since they have different baselines to begin with. When that is the case, our data are *paired*, and we'd compare means using a *paired* two-sample t-test. 
+
+We have also been doing *two-sided* t-tests, by asking "is there a difference in means" but *not* implying directionality. If we instead ask "Is mean of A *greater* than mean of B", then we'd use a *one-sided* t-test to account for directionality.
+
+In this take-home lab, you'll learn to do both by specifying new arguments in the `t.test()` function.
+
+#### Background on Flint water data
+
+To practice paired and one-sided t-tests, we'll use data collected from 271 residences in Flint, MI to explore the effect of collection methods on observed lead concentrations (ppb).  
+
+**Background:** For a year and a half (summer 2014 - December 2015), city officials in Flint, MI directed residents to flush their faucets for 3 - 4 minutes before collecting samples for lead & copper corrosion testing. The guidelines were highly criticized by the EPA, as flushing could reduce Pb measured concentrations and imply lower exposure than residents were actually experiencing (more: [KJ Pieper et al. 2018](https://pubs.acs.org/doi/full/10.1021/acs.est.8b00791). 
+
+For more Flint residential testing and blood lead levels data: [michigan.gov](https://www.michigan.gov/flintwater/0,6092,7-345-76292_76294_76297---,00.html) 
+
+#### Read in and explore the Flint water data: 
+
+```{r}
+flint_pb <- read_csv(here::here("lab_7_materials",
+                                "flint_water.csv")) %>% 
+  clean_names() %>% 
+  rename(pb_immediate = pb_bottle_1_ppb_first_draw, 
+         pb_2min = pb_bottle_2_ppb_2_mins_flushing) 
+```
+
+We are asked: is there a significant difference between lead concentrations immediately sampled and after 2 minutes of flushing? 
+
+First, we'll look at the distributions & sample sizes:
+
+- With 271 observations each (note: there are 5 NA values in each sample), we have enough to say that by Central Limit Theorem we know the sampling distribution of means will be normal regardless of underlying population, so comparing means using a  t-test is OK if I think means is a useful metric of comparison.
+
+- We should still always LOOK at the data, anyway: 
+
+```{r}
+
+# Histograms:
+ggplot(flint_pb, aes(x = pb_immediate)) +
+  geom_histogram()
+
+ggplot(flint_pb, aes(x = pb_2min)) +
+  geom_histogram()
+
+# QQ plots:
+ggplot(flint_pb, aes(sample = pb_immediate)) +
+  geom_qq()
+
+ggplot(flint_pb, aes(sample = pb_2min)) +
+  geom_qq()
+
+# They are NOT normally distributed; we'll still say we want to compare means, and can do that comfortably because of CLT (sampling distribution of the means will be normal).
+
+```
+
+We should also look at some statistics for comparison: 
+
+```{r}
+
+# Sample size (non-NA):
+n_immediate <- sum(!is.na(flint_pb$pb_immediate))
+n_flushed <- sum(!is.na(flint_pb$pb_2min))
+
+# Means (immediate v. 2 min flushing):
+mean_immediate <- mean(flint_pb$pb_immediate, na.rm = TRUE)
+mean_flushed <- mean(flint_pb$pb_2min, na.rm = TRUE)
+
+# Medians (immediate v. 2 min flushing):
+median_immediate <- median(flint_pb$pb_immediate, na.rm = TRUE)
+median_flushed <- median(flint_pb$pb_2min, na.rm = TRUE)
+
+# Standard deviations (immediate v. 2 min flushing):
+sd_immediate <- sd(flint_pb$pb_immediate, na.rm = TRUE)
+sd_flushed <- sd(flint_pb$pb_2min, na.rm = TRUE)
+
+# Lead concentrations measured in immediately collected samples are much higher than those in water collected after 2 min flushing. 
+```
+
+Return the values for the sample sizes and summary statistics in the code chunk above to see them in the Console. How do the sample means of lead concentration compare for immediate vs. 2-min flushed water samples?
+
+#### Are observations paired or unpaired? 
+
+These observations are reported for each *household*. Does it make sense to compare the "immediate" and "2 min flushing" observations across different households? 
+
+**No.** It makes sense to recognize that when we compare values, we should be comparing the immediate and post-flushing lead concentration differences at each house (e.g., each observation in the 'immediate' sample is associated with one and only one observation in the '2 min flushing' sample). 
+
+When that is the case, data are called **paired**, and we will perform a **paired t-test** to answer: "Is there a significant difference in lead concentration in immediately collected tap, and in water after 2-min of flushing?"
+
+**Null hypothesis:** The mean lead concentration is the same in water collected immediatetely, and water collected after 2-min flushing. 
+
+**Alternative hypothesis:** The mean lead concentration is NOT the same in water collected immediatetely, and water collected after 2-min flushing. 
+
+#### Two-sample, two-sided **paired** t-test:
+
+To answer that question, we'll perform a two-sided, two-sample paired t-test. Breaking it down:
+
+- **Two-sided** because we're not asking "Is A greater than B" or is "B less than A", we're just asking if they're different in either direction
+
+- **Two-sample** because we're comparing means of two samples
+
+- **Paired** because each observation in sample A is associated with one and only one observation in sample B
+
+Perform the test by inputting the sample vectors, and adding argument `paired = TRUE`:
+
+```{r}
+my_flint_test <- t.test(flint_pb$pb_immediate, flint_pb$pb_2min, paired = TRUE)
+
+```
+
+Look at the results for `my_flint_test`. Think about the outcome, and decide based on the *p*-value whether you have enough evidence to reject the null hypothesis that the mean lead concentration in immediate and 2-min flushing samples is the same. 
+
+**Example statement of test outcome:** 
+
+"Mean lead concentration (ppb) measured in immediately collected water samples (`r round(mean_immediate, 2)` $\pm$ `r round(sd_immediate, 2)`, n = `r n_immediate`) differed significantly from lead in water collected after 2 minutes of flushing (`r round(mean_flushed, 2)` $\pm$ `r round(sd_flushed, 2)`, n = `r n_flushed`) by a paired two-sample t-test (t(`r round(my_flint_test$parameter, 2)`) = `r round(my_flint_test$statistic, 2)`, *p* < 0.001)."
+
+**Note:** Usually when a p-value is really tiny, *p* < 0.001 is sufficient. But ask: Why is the way I added that in the statement above *not* best practice for reproducibility? 
+
+#### Two-sample, ONE-sided **paired** t-test:
+
+What if our question isn't "do the means differ," but instead "are mean lead concentrations in water after 2-min flushing *LESS* than in immediately sampled water?"
+
+Then we are implying directionality, and would want to perform a one-sided test. We add directionality to `t.test()` by including the argument `alternative = "greater"` or `alternative = "less"`, depending on the order that we add our samples in the function. 
+
+If I want to test: Is mean of A *greater* than mean of B? Then my code would be: 
+
+`t.test(A, B, alternative = "greater")`
+
+If I want to test: Is the mean of B *less* than mean of A? (note that that is the same as the question above, just asked differently) Then my code would be:
+
+`t.test(B, A, alternative = "less")`
+
+So be careful of the order of inputs when you're doing a one-tailed t-test! 
+
+Our question is: "Are mean lead concentrations in water after 2-min flushing *LESS* than in immediately sampled water?"
+
+**Null hypothesis:** The mean lead concentration in flushed samples *is not lower* than the mean for immediately sampled water.
+
+**Alternative hypothesis:** The mean lead concentration in flushed samples *is* lower than the mean for immediately sampled water. 
+
+Perform a one-sided, two-sample paired t-test:
+```{r}
+flushed_less_ttest <- t.test(flint_pb$pb_immediate, 
+                             flint_pb$pb_2min, 
+                             paired = TRUE, 
+                             alternative = "less")
+```
+
+Check out the results for `flushed_less_ttest`.
+
+On your own based on the results, **write a final statement using in-line referencing**.
+
+### Cohen's *d* effect size
+
+Remember, [the *p*-value is not enough](https://www.jgme.org/doi/full/10.4300/JGME-D-12-00156.1). Here, we'll use Cohen's *d* effect size to report a more meaningful metric of differences between group means. 
+
+Recall, Cohen's *d* effecet size is calculated by: 
+
+$$d = \frac{Mean_{Group A} - Mean_{GroupB}}{SD_{pooled}}$$
+
+where the pooled standard deviation for both groups, SD~pooled~ is calculated by: 
+
+$$SD_{pooled}=\sqrt{\frac{SD_{GroupA}^2 + SD_{GroupB}^2}{2}}$$
+
+We could write our own function to calculate the effect size (see Casey's materials for Lab 6!) as follows: 
+
+```{r}
+
+# Creating a function called 'calc_d' to calculate Cohen's d effect size
+# Here, a and b will be our sample vectors 
+
+calc_d <- function(a, b) {
+  sd_pooled <- sqrt((sd(a, na.rm = TRUE)^2 + sd(b, na.rm = TRUE)^2)/2) # SD pooled
+  x <- (mean(a, na.rm = TRUE) - mean(b, na.rm = TRUE))/sd_pooled # Complete equation
+  return(x)
+}
+
+# Then apply that function to our samples: 
+
+flint_d_myfunction <- calc_d(flint_pb$pb_immediate, flint_pb$pb_2min)
+# d = 0.41 (moderate effect size)
+```
+
+Or we could use the existing `effsize::cohen.d()` function instead of creating our own. Let's use it here to check that results match for our function and the `cohen.d` function: 
+
+```{r}
+flint_d <- effsize::cohen.d(flint_pb$pb_immediate, flint_pb$pb_2min, na.rm = TRUE)
+# Same returned! Cohen's d = 0.41 (moderate effect size)
+```
+
+Then in our report, we would want to include the actual means of the samples, and the effect size, possibly the confidence interval for each, and then the *least interesting thing* shoud be the statement of significance associate with our t-test. 
+
+### Making a table with kableExtra
+
+**Note**: There are like a million ways to make a table when knitting to html from R Markdown (not all are compatible when knitting to Word or PDF, but you don't have to worry about that for now). Some packages that are helpful for producing customized tables are:
+
+- `DT`
+- `kable`
+- `kableExtra`
+- `flextable`
+- `gt`
+
+Here's an example using `kableextra` (see more examples  [here](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html) and [here](https://rpubs.com/yutao/444395)).
+
+I'm going to use a subset from the built-in R datas 'trees' to create an example finalized table. 
+
+First, check out the original data frame with `View(trees)`. 
+
+Now, make a subset then create a table with `kableExtra` (to see what each line adds, run line-by-line and with & without different arguments):
+```{r}
+
+# Make the subset (keep only rows 1 - 5):
+trees_sub <- trees %>% 
+  dplyr::slice(1:5)
+
+# Make the table of the subset:
+trees_sub %>% 
+  kable(col.names = c("Diameter (inches)", 
+                     "Height (ft)", 
+                     "Volume (cubic feet)")
+        ) %>% 
+  kable_styling(bootstrap_options = "striped", 
+                full_width = F,
+                position = "left"
+                ) %>% 
+  add_header_above(c("Black cherry tree metrics" = 3))
+  
+
+```
+
+...and many other customization options!
+
+### END LAB 7
