@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-library(car)
+library(car) # Just use for the Type III ANOVA check here
 library(janitor)
 library(ggbeeswarm)
 library(kableExtra)
