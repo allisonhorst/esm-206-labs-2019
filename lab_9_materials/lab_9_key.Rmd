@@ -1,0 +1,283 @@
+---
+title: "Lab Week 9 - Simple Linear Regression"
+author: "Allison Horst"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(kableExtra)
+library(ggpubr)
+library(broom) # Require development version!
+```
+
+### 1. Objectives
+
+- One more chi-square, with visualization
+- Example of rank-based tests for rank / medians comparison (Mann-Whitney U)
+- Simple linear regression by OLS in R
+- Check assumptions (diagnostic plots)
+- Visualize linear model, and summarize in text
+- Calculate Pearson's *r* 
+- Make predictions for new values
+
+
+### 2. Chi-square, revisited:
+
+Make some mock data (suppose we ask residents of California and Colorado if they skiied at least once last season): 
+```{r}
+df <- data.frame(state = c("California", "Oregon", "Washington", "Colorado"), 
+                 yes = c(54, 130, 67, 85), 
+                 no = c(102, 115, 95, 71))
+
+df
+```
+
+**We ask:** Does proportions of residents who went skiing last season differ significantly between Californians, Oregonians, Washingtonians, and Coloradans? 
+
+First, let's look at a table of proportions (remember `janitor::adorn_()`):
+```{r}
+
+df_prop <- df %>% 
+  janitor::adorn_percentages(denominator = "row") %>% 
+  janitor::adorn_pct_formatting(digits = 2) %>% 
+  janitor::adorn_ns(position = "front")
+
+df_prop
+
+```
+
+So yeah, it looks like we might expect to find a significant difference. Let's run chi-square to see: 
+
+```{r}
+# Remember, first get a contingency table of ONLY counts
+df_ct <- df %>% 
+  column_to_rownames('state')
+
+df_ct
+
+# Then run chi-square:
+ski_chi <- chisq.test(df_ct)
+
+# See results: 
+ski_chi
+
+```
+
+Since p < 0.05, we retain the alternative hypothesis that skiing and state are not independent. In other words: "There are significant differences in skiing habits (yes / no last season) based on state of residence ($\chi$^2^(`r ski_chi$parameter`) = `r round(ski_chi$statistic,2)`, *p* < 0.001)."
+
+Our follow-up question should be: *What's driving the significant association?*
+
+```{r}
+#Standardized residuals > |2| indicates strong divergence from null hypothesis scenario
+
+ski_chi$stdres
+# All but Washington are significantly different from expected if there were truly no significant differences in proportions. 
+
+# Can also follow-up by doing pairwise comparisons (just compare two states at a time)
+```
+
+### 3. A rank-based test example (Mann-Whitney U to compare unpaired ranks)
+
+Create two samples:
+```{r}
+
+# sample.int: random samples from 1 - n, of size = ?, with replacement: 
+
+set.seed(1414)
+gp_1 <- sample.int(20, size = 15, replace = TRUE)
+
+set.seed(1424)
+gp_2 <- sample.int(30, size = 15, replace = TRUE)
+```
+
+
+Is there a significant difference in ranks (medians) between the two groups?
+
+```{r}
+
+# Is there a significant difference in ranks (medians)?
+my_mwu <- wilcox.test(gp_1, gp_2)
+
+my_mwu
+# No significant difference in rank (median) 
+# If data are PAIRED, add argument 'paired = TRUE'
+```
+
+### 4. Simple linear regression
+
+Exploring the relationship between two continuous variables, linearly related, using the `iris` dataset 
+
+Here, we'll explore petal length vs. petal width
+
+#### A. Look at it: 
+```{r}
+
+# Exploratory (we'll make a final plot later)
+ggplot(data = iris, aes(x = Petal.Length, y = Petal.Width)) +
+  geom_point()
+```
+
+#### B. Model it
+
+```{r}
+
+iris_lm <- lm(Petal.Width ~ Petal.Length, data = iris)
+summary(iris_lm)
+
+# What are these outputs actually showing us? Talk through the different outputs here. 
+# Why might we be concerned about that intercept?
+
+# For comparison, forcing y-intercept to zero: 
+iris_lm_2 <- lm(Petal.Width ~ Petal.Length + 0, data = iris)
+summary(iris_lm_2)
+```
+
+Let's say we pick the first model (knowing we shouldn't extrapolate to zero): 
+
+The slope is `r iris_lm$coefficient[2]` (see by Command + Return)
+The y-intercept is `r iris_lm$coefficient[1]`
+
+We can also use `broom::tidy()` to get the model outputs in nice data frame format: 
+```{r}
+iris_lm_tidy <- broom::tidy(iris_lm)
+iris_lm_tidy
+
+# Then to get the Petal.Length coefficient:
+petal_coef <- iris_lm_tidy$estimate[2]
+petal_coef
+
+# To get whatever pieces you want by indexing. 
+```
+
+
+What about getting some other model information (degrees of freedom, F-statistic, p-value, etc.)?
+
+Easier to use `broom::glance()` - but make sure to have the development version of `{broom}` package (so that DFs align with `summary.lm()`). 
+
+```{r}
+
+# Metrics at a glance: 
+lm_out <- broom::glance(iris_lm)
+lm_out
+
+```
+
+We can use the results of both to write a statement about the model: 
+
+## REWRITE THIS STATEMENT OF LINEAR MODEL OUTPUTS USING TIDY AND GLANCE OUTPUTS
+
+#### C. Predictions & SEs at a glance (for existing values in df)
+
+To find the predicted values and residuals for iris petal width at each existing petal length in the data frame, we can use `broom::augment(iris_lm)`:
+```{r}
+
+lm_fitted <- broom::augment(iris_lm)
+lm_fitted
+
+```
+
+#### D. Explore assumptions
+
+Let's use this information to manually evaluate some assumptions. 
+
+- Linearly related variables (CHECK)
+- Normally distributed residuals
+- Homoscedasticity
+- iid residuals (no serial correlation) - more often a concern in time series data
+
+We'll explore a few here.
+
+1. Residuals distribution. 
+
+The residuals (y~actual~ - y~predicted~) are stored in the `$.resid` column from the `broom::augment()` function. 
+
+Histogram and QQ plot of the residuals: 
+```{r}
+ggplot(data = lm_fitted, aes(x = .resid)) +
+  geom_histogram()
+
+ggplot(data = lm_fitted, aes(sample = .resid)) +
+  geom_qq()
+```
+
+Check! These overall look pretty normally distributed. 
+
+We could also do a formal test for normality (e.g. Shapiro-Wilke, Anderson-Darling, etc.), but remember - those formal hypothesis tests for normality are often more an indication of sample size than a meaningful divergence from normality, especially as sample size increases). 
+
+2. Homoscedasticity
+
+Does it look like the variance (spread) of residuals changes over the model? 
+```{r}
+ggplot(data = lm_fitted, aes(x = .fitted, y = .resid)) +
+  geom_point()
+
+ggplot(data = lm_fitted, aes(x = .fitted, y = .std.resid)) +
+  geom_point()
+
+# Not much (don't be betrayed by several points out of many!)
+```
+
+Cook's D: A measure of how "influential" a point is in the model output.
+
+Some guidelines: 
+
+- If Cook's D is greater than $\frac{4}{n}$, where *n* is the number of observations, then take a look at it again. This does NOT mean you should just remove that observation. In fact, you should plan on leaving all observations in unless you have really good reason not to. 
+
+- In our example (iris), *n* = 50, so the threshold for a second look is 4/50 = 0.08
+
+Let's take a look: 
+```{r}
+ggplot(data = lm_fitted, aes(x = as.numeric(rownames(lm_fitted)), y = .cooksd)) +
+  geom_col() +
+  geom_hline(yintercept = 0.08,
+             color = "red",
+             linetype = "dashed")
+```
+
+So, nothing we should be really concerned about using this guideline. 
+
+An alternate approach (that you're more likely to use, and is fine): Just get the diagnostic plots using `plot(model_name)`:
+```{r}
+plot(iris_lm)
+```
+
+#### E. Visualize the model
+
+```{r}
+ggplot(data = iris, aes(x = Petal.Length, y = Petal.Width)) +
+  geom_point(size = 2) +
+  geom_smooth(method = "lm",
+              color = "red",
+              size = 0.5,
+              fill = "gray10",
+              alpha = 0.5) +
+  theme_light() +
+  ggpubr::stat_cor(label.x = 5, label.y = 0.4) +
+  ggpubr::stat_regline_equation(label.x = 5, label.y = 0.6)
+  
+```
+
+#### F. Make predictions at new points
+
+Make a data frame of new petal lengths
+```{r}
+new_df <- data.frame(Petal.Length = c(2.5, 3, 3.5))
+predicted_values <- predict(iris_lm, newdata = new_df)
+
+# Put them together if you want: 
+new_predict <- data.frame(new_df, predicted_values)
+new_predict
+
+```
+
+#### G. Find Pearson's *r* for correlation: 
+```{r}
+cor.test(iris$Petal.Length, iris$Petal.Width)
+# r = 0.9629 (strong positive correlation)
+# Correlation is significantly non-zero
+```
+
+# END LAB
