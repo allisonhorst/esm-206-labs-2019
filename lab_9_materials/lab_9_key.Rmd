@@ -145,6 +145,10 @@ We can also use `broom::tidy()` to get the model outputs in nice data frame form
 iris_lm_tidy <- broom::tidy(iris_lm)
 iris_lm_tidy
 
+# Get the intercet: 
+petal_int <- iris_lm_tidy$estimate[1]
+petal_int
+
 # Then to get the Petal.Length coefficient:
 petal_coef <- iris_lm_tidy$estimate[2]
 petal_coef
@@ -167,7 +171,7 @@ lm_out
 
 We can use the results of both to write a statement about the model: 
 
-## REWRITE THIS STATEMENT OF LINEAR MODEL OUTPUTS USING TIDY AND GLANCE OUTPUTS
+Simple linear regression was used to explore the relationship between iris petal length (cm) and petal width (cm). A significant regression equation was found ($\beta$ = `r round(petal_coef,3)`, F(`r lm_out$df`,`r lm_out$df.residual`) = `r round(lm_out$statistic,1)`, p < 0.001) with an R^2^ of `r round(lm_out$r.squared,3)`. 
 
 #### C. Predictions & SEs at a glance (for existing values in df)
 

@@ -532,6 +532,10 @@ iris_lm_tidy</code></pre>
 ##   &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 (Intercept)    -0.363   0.0398      -9.13 4.70e-16
 ## 2 Petal.Length    0.416   0.00958     43.4  4.68e-86</code></pre>
+<pre class="r"><code># Get the intercet: 
+petal_int &lt;- iris_lm_tidy$estimate[1]
+petal_int</code></pre>
+<pre><code>## [1] -0.3630755</code></pre>
 <pre class="r"><code># Then to get the Petal.Length coefficient:
 petal_coef &lt;- iris_lm_tidy$estimate[2]
 petal_coef</code></pre>
@@ -548,10 +552,8 @@ lm_out</code></pre>
 ## 1     0.927         0.927 0.206     1882. 4.68e-86     1   24.8 -43.6 -34.6
 ## # … with 3 more variables: deviance &lt;dbl&gt;, df.residual &lt;int&gt;, nobs &lt;int&gt;</code></pre>
 <p>We can use the results of both to write a statement about the model:</p>
+<p>Simple linear regression was used to explore the relationship between iris petal length (cm) and petal width (cm). A significant regression equation was found (<span class="math inline">\(\beta\)</span> = 0.416, F(1,148) = 1882.5, p &lt; 0.001) with an R<sup>2</sup> of 0.927.</p>
 </div>
-</div>
-<div id="rewrite-this-statement-of-linear-model-outputs-using-tidy-and-glance-outputs" class="section level2">
-<h2>REWRITE THIS STATEMENT OF LINEAR MODEL OUTPUTS USING TIDY AND GLANCE OUTPUTS</h2>
 <div id="c.-predictions-ses-at-a-glance-for-existing-values-in-df" class="section level4">
 <h4>C. Predictions &amp; SEs at a glance (for existing values in df)</h4>
 <p>To find the predicted values and residuals for iris petal width at each existing petal length in the data frame, we can use <code>broom::augment(iris_lm)</code>:</p>
