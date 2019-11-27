@@ -26,18 +26,19 @@ library(broom) # Require development version!
 
 ### 2. Chi-square, revisited:
 
-Make some mock data (suppose we ask residents of California and Colorado if they skiied at least once last season): 
+First, we'll make some mock data (suppose we ask residents of California and Colorado if they skiied at least once last season): 
 ```{r}
 df <- data.frame(state = c("California", "Oregon", "Washington", "Colorado"), 
                  yes = c(54, 130, 67, 85), 
                  no = c(102, 115, 95, 71))
 
+# Check out the data frame that you just created from scratch: 
 df
 ```
 
 **We ask:** Does proportions of residents who went skiing last season differ significantly between Californians, Oregonians, Washingtonians, and Coloradans? 
 
-First, let's look at a table of proportions (remember `janitor::adorn_()`):
+Let's look at a table of proportions (remember `janitor::adorn_()`):
 ```{r}
 
 df_prop <- df %>% 
@@ -53,15 +54,18 @@ So yeah, it looks like we might expect to find a significant difference. Let's r
 
 ```{r}
 # Remember, first get a contingency table of ONLY counts
+# Last week we just removed the first column
+# Here, we use column_to_rownames to just make the first column a rowname instead
 df_ct <- df %>% 
   column_to_rownames('state')
 
+# Notice how it changes:
 df_ct
 
-# Then run chi-square:
+# Then we run chi-square:
 ski_chi <- chisq.test(df_ct)
 
-# See results: 
+# And to see the results: 
 ski_chi
 
 ```
@@ -76,15 +80,24 @@ Our follow-up question should be: *What's driving the significant association?*
 ski_chi$stdres
 # All but Washington are significantly different from expected if there were truly no significant differences in proportions. 
 
-# Can also follow-up by doing pairwise comparisons (just compare two states at a time)
+# Then we can also follow-up by doing pairwise chi-square comparisons (just compare two states at a time) (not doing that here...)
 ```
 
 ### 3. A rank-based test example (Mann-Whitney U to compare unpaired ranks)
 
-Create two samples:
+In lecture we discussed non-parametric rank-based alternatives to some of the hypothesis tests we've been doing to compare means. Those were: 
+
+- Mann-Whitney U to compare ranks (medians) between two unpaired samples
+- Wilcoxon Signed-Rank to compare ranks (medians) between two paired samples
+- Kruskall-Wallis to compare ranks (medians) between > 2 samples
+
+As an example, let's make some mock "unpaired" data and perform Mann-Whitney U using the `wilcox.test()` function (you'd also use this for a paired Wilcoxon-Signed-Rank test, with an additional 'paired = TRUE' argument). 
+
+First, create two samples `gp_1` and `gp_2`:
 ```{r}
 
-# sample.int: random samples from 1 - n, of size = ?, with replacement: 
+# Remember, use set.seed() to create a "pseudorandom" sample
+# sample.int: creates random samples from 1 - n, of size = ?, with replacement: 
 
 set.seed(1414)
 gp_1 <- sample.int(20, size = 15, replace = TRUE)
@@ -93,9 +106,11 @@ set.seed(1424)
 gp_2 <- sample.int(30, size = 15, replace = TRUE)
 ```
 
+For example, imagine that those are rankings that people give a candidate on a scale from 1 - 30, and we want to know if there is a significant difference. 
 
-Is there a significant difference in ranks (medians) between the two groups?
+We ask: Is there a significant difference in ranks (medians) between the two groups?
 
+Here, we'll perform Mann-Whitney U: 
 ```{r}
 
 # Is there a significant difference in ranks (medians)?
@@ -106,41 +121,59 @@ my_mwu
 # If data are PAIRED, add argument 'paired = TRUE'
 ```
 
+Though not doing it today, see `kruskal.test` for more information about a rank-based test for comparing medians across > 2 groups. 
+
 ### 4. Simple linear regression
 
-Exploring the relationship between two continuous variables, linearly related, using the `iris` dataset 
+We'll exploring the relationship between two continuous variables, using the `iris` dataset 
 
-Here, we'll explore petal length vs. petal width
+Here, we'll explore petal length vs. petal width.
 
 #### A. Look at it: 
+
+Always. This should always be the first thing. 
 ```{r}
 
 # Exploratory (we'll make a final plot later)
 ggplot(data = iris, aes(x = Petal.Length, y = Petal.Width)) +
-  geom_point()
+  geom_point(aes(color = Species))
 ```
+
+And ask: 
+- Does it look like a linear relationship makes sense?
+- Do we have any concerns about modeling as a linear relationship?
+- Any outliers?
+- Initial thoughts about homoscedasticity (explored more later)? 
+
+Here, it looks like overall a linear relationship between petal length and petal width makes sense (although a case could be made that the smaller group, which contains all obserations for setosa irises, should be modeled separately). 
 
 #### B. Model it
 
+Once we've decided that a linear relationship makes sense, we'll model it using `lm()`. 
+
+Note that we haven't checked all assumptions yet. That's because a lot of our assumptions for linear regression are based on model *residuals* (e.g. normality & homoscedasticity of residuals), which we can't calculate until after we find the predicted values from the model ($residual = y_{actual} - y_{predicted}$). 
+
+So make the model first: 
 ```{r}
 
 iris_lm <- lm(Petal.Width ~ Petal.Length, data = iris)
 summary(iris_lm)
 
-# What are these outputs actually showing us? Talk through the different outputs here. 
-# Why might we be concerned about that intercept?
+# Look in lecture notes to see what the different pieces of the output are telling us. 
+# Are the individual coefficients significantly different from zero?
+# Is the model overall significant?
 
 # For comparison, forcing y-intercept to zero: 
 iris_lm_2 <- lm(Petal.Width ~ Petal.Length + 0, data = iris)
 summary(iris_lm_2)
 ```
 
-Let's say we pick the first model (knowing we shouldn't extrapolate to zero): 
+Let's say we pick the first model (`lm_1`): 
 
-The slope is `r iris_lm$coefficient[2]` (see by Command + Return)
+The slope is `r iris_lm$coefficient[2]` 
 The y-intercept is `r iris_lm$coefficient[1]`
 
-We can also use `broom::tidy()` to get the model outputs in nice data frame format: 
+But trying to get all of the statistical information from the `summary()` function would be kind of a mess. We can also use `broom::tidy()` to get the model outputs in nice data frame format: 
 ```{r}
 iris_lm_tidy <- broom::tidy(iris_lm)
 iris_lm_tidy
@@ -183,22 +216,24 @@ lm_fitted
 
 ```
 
+Notice that within `lm_fitted`, there are also a bunch of other things - like residuals, standardized residuals, etc. We'll explore those things a bit more next: 
+
 #### D. Explore assumptions
 
-Let's use this information to manually evaluate some assumptions. 
+Let's use this information from `lm_fitted` to manually evaluate some assumptions. 
 
-- Linearly related variables (CHECK)
+- Linearly related variables (CHECK - already looked & thought hard)
 - Normally distributed residuals
-- Homoscedasticity
+- Homoscedasticity (constant residuals variance)
 - iid residuals (no serial correlation) - more often a concern in time series data
 
 We'll explore a few here.
 
 1. Residuals distribution. 
 
-The residuals (y~actual~ - y~predicted~) are stored in the `$.resid` column from the `broom::augment()` function. 
+A major assumption of linear regression is that the residuals are normally distributed. The residuals for our model (y~actual~ - y~predicted~) are stored in the `$.resid` column from the `broom::augment()` function. 
 
-Histogram and QQ plot of the residuals: 
+Here, we create a histogram and QQ plot of the residuals: 
 ```{r}
 ggplot(data = lm_fitted, aes(x = .resid)) +
   geom_histogram()
@@ -213,7 +248,9 @@ We could also do a formal test for normality (e.g. Shapiro-Wilke, Anderson-Darli
 
 2. Homoscedasticity
 
-Does it look like the variance (spread) of residuals changes over the model? 
+The assumption of homoscedasticity means that we assume relatively constant variance of residuals. Does it look like the variance (spread) of residuals changes over the span of the model? 
+
+Here, we'll look at the residuals (actual, and standardized) over the course of the fitted values to see if the spread of the residuals is changing notably:
 ```{r}
 ggplot(data = lm_fitted, aes(x = .fitted, y = .resid)) +
   geom_point()
@@ -221,36 +258,64 @@ ggplot(data = lm_fitted, aes(x = .fitted, y = .resid)) +
 ggplot(data = lm_fitted, aes(x = .fitted, y = .std.resid)) +
   geom_point()
 
-# Not much (don't be betrayed by several points out of many!)
 ```
 
-Cook's D: A measure of how "influential" a point is in the model output.
+There, we might say "Well yeah...it looks like at larger values of the fitted model, we see greater spread of the residuals." But also try not to be distracted by a relatively small number of observations. Here, there are only about ~10 observations that look like they are leading to the larger residuals variance, and even those aren't much different from the spread that exists at lower values in the fitted model (e.g. |0.5| vs. |0.3|). So here, heteroscedasticity isn't a big concern. 
 
-Some guidelines: 
+Also remember, violations of homoscedasticity may lead to wrongly large or small *errors* associated with coefficients, but will not affect the model estimates (coefficients) themselves.  
 
-- If Cook's D is greater than $\frac{4}{n}$, where *n* is the number of observations, then take a look at it again. This does NOT mean you should just remove that observation. In fact, you should plan on leaving all observations in unless you have really good reason not to. 
+So the graphs we made manually above help us to explore the assumptions of linear regression (residuals normally distributed, ~ constant variance, and a linear model makes sense to describe the overall relationship between petal length and petal width). 
 
-- In our example (iris), *n* = 50, so the threshold for a second look is 4/50 = 0.08
-
-Let's take a look: 
-```{r}
-ggplot(data = lm_fitted, aes(x = as.numeric(rownames(lm_fitted)), y = .cooksd)) +
-  geom_col() +
-  geom_hline(yintercept = 0.08,
-             color = "red",
-             linetype = "dashed")
-```
-
-So, nothing we should be really concerned about using this guideline. 
-
-An alternate approach (that you're more likely to use, and is fine): Just get the diagnostic plots using `plot(model_name)`:
+An alternate approach to make those graphs (that you're more likely to use, and is fine): Just get the diagnostic plots using `plot(model_name)`:
 ```{r}
 plot(iris_lm)
 ```
 
-#### E. Visualize the model
+Notice that four plots show up. What do they show? 
+
+- **The first one**: fitted values vs. residuals - the same that we made manually to explore homoscedasticity
+- **The second one**: QQ-plot for residuals - the same that we made manually to explore normality of residuals
+- **The third one**: another way of looking at fitted vs. residuals (these are just standardized residuals, but you can interpret it the same way)
+- **The fourth one**: Cook's distance, a measure of "influence" or "leverage" that individual points have on the model - often considered a way to explore outliers...
+
+So let's think a bit about Cook's distance (Cook's *d*): a measure of how "influential" a point is in the model output.
+
+#### E. Cook's Distance (observation influence / leverage)
+
+Some guidelines: 
+
+- If Cook's D is greater than $\frac{4}{n}$ for any observation, where *n* is the number of observations used to create the model, then that observation is strongly influential. This does NOT mean you should just remove that observation. In fact, you should plan on leaving all observations in unless you have really good reason not to. 
+
+- In our example (iris), *n* = 150, so the threshold for a second look is 4/150. Let's make & store that as a variable here:
+```{r}
+cook_limit <- as.numeric(4 / count(iris)) 
+```
+
+Let's take a look at the Cook's distance for each of our observations, which is also included in `lm_fitted` as `.cooksd`: 
+```{r}
+
+# Note: here, we convert the numbered row names to actual values to be plotted on the x-axis, then plot Cook's d for each observation as a column height
+
+ggplot(data = lm_fitted, aes(x = as.numeric(rownames(lm_fitted)), y = .cooksd)) +
+  geom_col() +
+  geom_hline(yintercept = cook_limit,
+             color = "red",
+             linetype = "dashed")
+```
+
+We can see that there are a number (though relatively small, ~ 12 of 150 observations) of observations that we might want to take a second look at. But Cook's distance should **NOT** be a binary decision making tool to decide whether or not a value should be considered an outlier, or excluded from a dataset. 
+
+You should have a very compelling reason to believe that an observation is not representative of the population that you are trying to study (e.g. measurement error, mislabeled sample, etc.) before you even consider removing it. Your default should be to keep everything. How different a point is from the others is not a good enough reason to remove it from your analyses. 
+
+#### F. Visualize the model
+
+Now that we've explore the assumptions and have decided that linear regression is a valid tool to describe the relationship between petal length and petal width, let's look at the model.
+
+- Use `geom_smooth(method = "lm")` to add a linear model to an existing scatterplot. 
+- Use `stat_cor()` and `stat_regline_equation` to add equation information directly to the plot panel, at an x- and y-position that you specify
 
 ```{r}
+
 ggplot(data = iris, aes(x = Petal.Length, y = Petal.Width)) +
   geom_point(size = 2) +
   geom_smooth(method = "lm",
@@ -264,24 +329,57 @@ ggplot(data = iris, aes(x = Petal.Length, y = Petal.Width)) +
   
 ```
 
-#### F. Make predictions at new points
+#### G. Make predictions at new points
 
-Make a data frame of new petal lengths
+Often, we'll want to use a model to make predictions for **new** values of the predictor variable.
+
+Let's make a data frame of new petal lengths, then feed that into the `iris_lm` model to make predictions for petal width. 
+
+**Note**: Notice that here, I'm creating a variable called `Petal.Length` within new_df. That's important because the model `iris_lm` was built using a predictor variable called `Petal.Length`, so when we feed the model new data it is going to look for a variable *also called Petal.Length*. 
+
 ```{r}
+
+# Make a new data frame (in this case, containing only a single column called Petal.Length):
 new_df <- data.frame(Petal.Length = c(2.5, 3, 3.5))
+
+# Look at new_df to confirm:
+new_df
+```
+
+Now, give that new data for Petal.Length (in new_df) to the model to make predictions, using the `predict()` function: 
+```{r}
+
 predicted_values <- predict(iris_lm, newdata = new_df)
 
-# Put them together if you want: 
+# Put the predictions together with the inputs if you want: 
 new_predict <- data.frame(new_df, predicted_values)
 new_predict
 
 ```
 
-#### G. Find Pearson's *r* for correlation: 
+#### H. Find Pearson's *r* for correlation: 
+
+In lecture we talked about the coefficient of determination, R^2^, which tells us how much of the variance in the dependent variable is explained by the model. 
+
+We might also want to explore the strength of the correlation (degree of relationship) between two variables which, for two linearly related continuous variables, can be expressed using Pearson's *r*. 
+
+Pearson's *r* ranges in value from -1 (perfectly negatively correlated - as one variable increases the other decreases) to 1 (perfectly positively correlated - as one variable increases the other increases). A correlation of 0 means that there is no degree of relationship between the two variables. 
+
+Typical guidelines look something like this (there's wiggle room in there): 
+
+- *r* = 0: no correlation
+- *r* < |0.3|: weak correlation
+- *r* between |0.3| and |0.7|: moderate correlation
+- *r* > |0.7|: strong correlation
+
+We'll use the `cor.test()` function, adding the two vectors (Petal.Length and Petal.Width from iris) as the arguments. The function reports the Pearson's *r* value, and performs a hypothesis test with null hypothesis that the correlation = 0. 
+
 ```{r}
-cor.test(iris$Petal.Length, iris$Petal.Width)
+my_cor <- cor.test(iris$Petal.Length, iris$Petal.Width)
 # r = 0.9629 (strong positive correlation)
 # Correlation is significantly non-zero
 ```
+
+Here, we see that there is a strong positive correlation between petal length and petal width (*r* = `r round(my_cor$estimate,2)`, t(`r my_cor$parameter`) = `r round(my_cor$statistic,2)`, p < 0.001). 
 
 # END LAB
