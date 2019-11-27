@@ -140,6 +140,7 @@ ggplot(data = iris, aes(x = Petal.Length, y = Petal.Width)) +
 ```
 
 And ask: 
+
 - Does it look like a linear relationship makes sense?
 - Do we have any concerns about modeling as a linear relationship?
 - Any outliers?
@@ -170,8 +171,8 @@ summary(iris_lm_2)
 
 Let's say we pick the first model (`lm_1`): 
 
-The slope is `r iris_lm$coefficient[2]` 
-The y-intercept is `r iris_lm$coefficient[1]`
+- The slope is `r iris_lm$coefficient[2]` 
+- The y-intercept is `r iris_lm$coefficient[1]`
 
 But trying to get all of the statistical information from the `summary()` function would be kind of a mess. We can also use `broom::tidy()` to get the model outputs in nice data frame format: 
 ```{r}
