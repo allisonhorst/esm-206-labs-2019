@@ -1,0 +1,243 @@
+---
+title: "ESM 206 Fall 2019 - Lab 10"
+author: "Allison Horst"
+date: "11/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(corrplot)
+library(beepr)
+library(praise)
+library(stargazer) # For nice regression tables! 
+# Hlavac, Marek (2018). stargazer: Well-Formatted Regression and Summary Statistics Tables.
+#  R package version 5.2.2. https://CRAN.R-project.org/package=stargazer 
+library(sf)
+library(gganimate)
+library(transformr)
+```
+
+## Objectives:
+
+- Multiple linear regression
+- Check assumptions w/diagnostic plots
+- Make predictions with new data
+- Some other fun things (beepr, praise, sf, gganimate)
+
+### 1. Multiple linear regression
+
+Here, we'll be modeling housing price based on house characteristics using data from SLO home sales.
+
+- Read in slo_homes.csv file and explore
+- Only keep observations for San Luis Obispo, Atascadero and Arroyo Grande
+
+```{r}
+homes <- read_csv("slo_homes.csv") %>% 
+  clean_names() %>% 
+  filter(city %in% c("San Luis Obispo", "Atascadero", "Arroyo Grande"))
+  
+praise()
+```
+
+Some exploring: look at correlations between numeric variables
+```{r}
+homes_cor <- cor(homes[2:6])
+homes_cor
+
+corrplot(homes_cor, 
+         method = "circle",
+         type = "upper")
+
+# Moderate correlations between numeric variables (no concern about multicollinearity here from a correlation value standpoint, but there may be some conceptual overlap between variables)
+
+praise()
+# See: names(praise_parts) for other things you can call in praise
+
+# For example, customize it a bit
+praise("You are totally ${adjective}! Super ${EXCLAMATION}!")
+```
+
+But let's start out using all variables we have: 
+```{r}
+
+home_lm <- lm(price ~ city + bedrooms + bathrooms + sq_ft + status, data = homes)
+
+# View it: 
+home_lm
+summary(home_lm)
+
+```
+
+Well that's kind of a nightmare to look at. And putting it into a table could be really challenging. Enter, the `stargazer` package. 
+
+```{r, results = "asis"}
+stargazer(home_lm, type = "html")
+```
+
+Let's answer a few questions: 
+
+- How do we interpret each of these variables? 
+- What is the reference level for city? 
+- What does NOT make sense here, that might be multiply described by another variable in the model?
+
+Try another version of the model:
+```{r}
+home_lm2 <- lm(price ~ city + sq_ft + status, data = homes)
+```
+
+And check out the results: 
+```{r, results = "asis"}
+stargazer(home_lm2, type = "html") # And you can customize...
+```
+
+You can also use stargazer for multiple model comparisons: 
+```{r, results = "asis"}
+stargazer(home_lm, home_lm2, type = "html")
+```
+
+### 2. Exploring diagnostics
+
+We can use the diagnostic plots to check assumptions about residuals, e.g.:
+
+- Constant variance of residuals?
+- Normally distributed residuals?
+- Also check: any notable outliers? 
+
+```{r}
+plot(home_lm)
+```
+
+### 3. Predictions for home price with multiple variables 
+
+First, we'll make a new data frame containing all variables that `home_lm2` needs to make a prediction: 
+
+```{r}
+new_df <- data.frame(
+  city = rep(c("San Luis Obispo", "Arroyo Grande", "Atascadero"), each = 10),
+  sq_ft = rep(seq(0, 5000, length = 10)),
+  status = rep("Regular", 30)
+)
+
+new_df
+```
+
+Then, use the `predict()` function to find the predicted home prices for each combination in `new_df`:
+
+```{r}
+
+# Make the predictions using new_df:
+predict_df <- predict(home_lm2, newdata = new_df)
+
+# Then bind predictions together with new_df:
+full_df <- data.frame(new_df, predict_df)
+
+```
+
+### 4. Visualize it! 
+
+```{r}
+ggplot() +
+  geom_point(data = homes, 
+             aes(x = sq_ft, 
+                 y = price,
+                 color = city,
+                 pch = city),
+             size = 1,
+             alpha = 0.5) + 
+  geom_line(data = full_df,
+            aes(x = sq_ft, 
+                y = predict_df,
+                color = city)) +
+  scale_color_manual(values = c("orange", "magenta", "black")) +
+  theme_light()
+
+```
+
+### 5. Compare AIC values 
+
+...but statistics are not substitute for judgement!
+```{r}
+AIC(home_lm)
+AIC(home_lm2)
+
+# Pretty close, but the first model has a lower AIC. Should I pick the first model just based on AIC? NO!
+```
+
+### 6. A little map teaser
+
+Data source: 
+[https://nid.sec.usace.army.mil/ords/f?p=105:19:14606625072661::NO:::](National Inventory of Dams)
+
+Get and check out the CA dams data: 
+```{r}
+dams <- read_csv("ca_dams.csv") %>% 
+  clean_names() %>% 
+  drop_na(latitude) %>% 
+  drop_na(longitude) %>% 
+  drop_na(year_completed)
+```
+
+Then make sure R understands that latitude & longitude are spatial coordinates using `sf::st_as_sf()`:
+```{r}
+dams_sf <- st_as_sf(dams, 
+                    coords = c("longitude","latitude")
+                    )
+
+st_crs(dams_sf) <- 4326
+
+# Check class:
+class(dams_sf)
+```
+
+What does that mean? Now R recognizes this as spatial data. 
+
+```{r}
+plot(dams_sf)
+```
+
+Cool! Now let's get an outline for California: 
+
+# NOTE: GET SAME PROJECTIONS HERE! 
+```{r}
+ca_border <- read_sf(here::here("lab_10_materials", "ca_state_border"), layer = "CA_State_TIGER2016")
+
+plot(ca_border)
+```
+
+Then plot them together with ggplot2!
+```{r}
+
+ggplot() +
+  geom_sf(data = dams_sf)
+
+ggplot() +
+  geom_sf(data = ca_border)
+
+# Combine: 
+ggplot() +
+  geom_sf(data = ca_border) +
+  geom_sf(data = dams_sf,
+          size = 1,
+          alpha = 0.5,
+          color = "black") +
+  theme_minimal()
+
+beepr::beep(8)
+```
+
+### 7. A little gganimate teaser
+
+Now show how dams have been added over time with `gganimate`!
+```{r}
+ggplot(data = dams_sf) +
+  geom_sf(data = ca_border) +
+  geom_sf(data = dams_sf, 
+          size = 1.5,
+          color = "gray50") +
+  theme_void() +
+  labs(title = 'Year: {round(frame_time,0)}') +
+  transition_time(year_completed) +
+  shadow_mark(alpha = 1)
